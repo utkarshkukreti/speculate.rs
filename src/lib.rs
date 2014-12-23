@@ -7,6 +7,8 @@ use syntax::ast::TokenTree;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacItems, MacResult};
 
+mod block;
+
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("speculate", expand_speculate);
