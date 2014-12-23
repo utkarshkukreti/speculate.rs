@@ -25,6 +25,7 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
     }).collect::<Vec<_>>();
 
     let module = quote_item!(cx,
+        #[allow(non_snake_case)]
         mod sup {
             $items
         }
