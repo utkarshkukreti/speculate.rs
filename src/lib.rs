@@ -10,6 +10,7 @@ use syntax::parse::tts_to_parser;
 
 mod block;
 mod parser;
+mod generator;
 
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {
@@ -17,14 +18,17 @@ pub fn plugin_registrar(reg: &mut Registry) {
 }
 
 fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
+    let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg());
+    let blocks = parser::parse(&mut parser);
+    let items = blocks.iter().map(|p| {
+        generator::generate(cx, p)
+    }).collect::<Vec<_>>();
+
     let module = quote_item!(cx,
         mod sup {
+            $items
         }
     ).expect("failed to create item!");
-
-    let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg());
-    let parsed = parser::parse(&mut parser);
-    println!("parsed = {}", parsed);
 
     MacItems::new(Some(module).into_iter())
 }
