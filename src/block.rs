@@ -5,6 +5,8 @@ use syntax::ptr::P;
 pub enum Block {
     Describe {
         name: String,
+        before: Option<P<ast::Block>>,
+        after: Option<P<ast::Block>>,
         blocks: Vec<Block>
     },
 

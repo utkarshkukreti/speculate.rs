@@ -17,6 +17,8 @@ pub fn parse(parser: &mut Parser) -> Vec<Block> {
 
                 Block::Describe {
                     name: name.get().to_string(),
+                    before: None,
+                    after: None,
                     blocks: parser.parse_unspanned_seq(
                         &token::OpenDelim(token::Brace),
                         &token::CloseDelim(token::Brace),

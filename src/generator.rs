@@ -6,7 +6,7 @@ use block::Block;
 
 pub fn generate(cx: &mut ExtCtxt, block: &Block) -> P<ast::Item> {
     match *block {
-        Block::Describe {ref name, ref blocks} => {
+        Block::Describe {ref name, ref blocks, ..} => {
             let name = cx.ident_of(name.as_slice());
             let items = blocks.iter().map(|block| {
                 generate(cx, block)
