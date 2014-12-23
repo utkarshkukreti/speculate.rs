@@ -3,3 +3,7 @@
 name = "speculate"
 version = "0.0.1"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
+
+[lib]
+name = "speculate"
+plugin = true
