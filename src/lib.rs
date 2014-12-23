@@ -19,15 +19,13 @@ pub fn plugin_registrar(reg: &mut Registry) {
 
 fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
     let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg());
-    let blocks = parser::parse(&mut parser);
-    let items = blocks.iter().map(|p| {
-        generator::generate(cx, p)
-    }).collect::<Vec<_>>();
+    let block = parser::parse(&mut parser);
+    let item = generator::generate(cx, &block);
 
     let module = quote_item!(cx,
         #[allow(non_snake_case)]
         mod sup {
-            $items
+            $item
         }
     ).expect("failed to create item!");
 
