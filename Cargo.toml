@@ -1,0 +1,5 @@
+[package]
+
+name = "speculate"
+version = "0.0.1"
+authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
