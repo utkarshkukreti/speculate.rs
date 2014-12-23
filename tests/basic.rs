@@ -4,15 +4,15 @@
 extern crate speculate;
 
 speculate! {
-    it "works!" {
+    it "works at level 1!" {
         assert_eq!(0u, 0);
     }
 
-    it "works!!" {
-        assert_eq!(1u, 1);
-    }
-
-    it "works!!!" {
-        assert_eq!(2u, 2);
+    describe "something" {
+        describe "nested" {
+            it "works at level 3!" {
+                assert_eq!(1u, 1);
+            }
+        }
     }
 }
