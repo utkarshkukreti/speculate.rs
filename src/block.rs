@@ -1,6 +1,7 @@
 use syntax::ast;
 use syntax::ptr::P;
 
+#[deriving(Show)]
 pub enum Block {
     Describe {
         name: String,
