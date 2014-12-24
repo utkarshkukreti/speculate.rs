@@ -20,7 +20,8 @@ speculate! {
 
         describe "nested" {
             it "works at level 3!" {
-                assert_eq!(1u, 1);
+                let i = 1u;
+                assert_eq!(i, 1);
             }
 
             after {
