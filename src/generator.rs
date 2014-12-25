@@ -27,14 +27,9 @@ impl Generate for Describe {
         let name = cx.ident_of(self.name.as_slice());
         let items = self.blocks.into_iter().map(|block| {
             block.generate(cx)
-        }).collect::<Vec<_>>();
+        }).collect();
 
-        cx.item_mod(DUMMY_SP,
-                    DUMMY_SP,
-                    name,
-                    vec![],
-                    vec![],
-                    items)
+        cx.item_mod(DUMMY_SP, DUMMY_SP, name, vec![], vec![], items)
     }
 }
 
@@ -48,9 +43,7 @@ impl Generate for It {
             )
         ];
 
-        cx.item(DUMMY_SP,
-                name,
-                attrs,
+        cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
                     cx.fn_decl(vec![], cx.ty(DUMMY_SP, ast::TyTup(vec![]))),
                     ast::Unsafety::Normal,

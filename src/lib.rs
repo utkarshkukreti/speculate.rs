@@ -42,12 +42,8 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
         )
     ];
 
-    let module = cx.item_mod(DUMMY_SP,
-                             DUMMY_SP,
-                             cx.ident_of("sup"),
-                             attrs,
-                             vec![],
-                             vec![item]);
+    let module = cx.item_mod(DUMMY_SP, DUMMY_SP, cx.ident_of("sup"),
+                             attrs, vec![], vec![item]);
 
     MacItems::new(Some(module).into_iter())
 }
