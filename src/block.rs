@@ -3,15 +3,20 @@ use syntax::ptr::P;
 
 #[deriving(Show)]
 pub enum Block {
-    Describe {
-        name: String,
-        before: Option<P<ast::Block>>,
-        after: Option<P<ast::Block>>,
-        blocks: Vec<Block>
-    },
+    Describe(Describe),
+    It(It)
+}
 
-    It {
-        name: String,
-        block: P<ast::Block>
-    }
+#[deriving(Show)]
+pub struct Describe {
+    pub name: String,
+    pub before: Option<P<ast::Block>>,
+    pub after: Option<P<ast::Block>>,
+    pub blocks: Vec<Block>
+}
+
+#[deriving(Show)]
+pub struct It {
+    pub name: String,
+    pub block: P<ast::Block>
 }

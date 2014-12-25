@@ -1,13 +1,13 @@
 use syntax::parse::parser::Parser;
 use syntax::parse::token;
 
-use block::Block;
+use block::{Block, Describe, It};
 
-pub fn parse(parser: &mut Parser) -> Block {
+pub fn parse(parser: &mut Parser) -> Describe {
     parse_describe("sup", parser)
 }
 
-pub fn parse_describe(name: &str, parser: &mut Parser) -> Block {
+pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     let brace = token::CloseDelim(token::Brace);
 
     let mut before = None;
@@ -26,17 +26,17 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Block {
             "describe" => {
                 let (name, _) = parser.parse_str();
                 parser.expect(&token::OpenDelim(token::Brace));
-                blocks.push(parse_describe(name.get(), parser))
+                blocks.push(Block::Describe(parse_describe(name.get(), parser)))
             },
 
             "it" => {
                 let (name, _) = parser.parse_str();
                 let block = parser.parse_block();
 
-                blocks.push(Block::It {
+                blocks.push(Block::It(It {
                     name: name.get().to_string(),
                     block: block
-                })
+                }))
             },
 
             "before" => {
@@ -54,7 +54,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Block {
         }
     }
 
-    Block::Describe {
+    Describe {
         name: name.to_string(),
         before: before,
         after: after,

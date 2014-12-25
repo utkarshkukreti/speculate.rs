@@ -11,6 +11,8 @@ use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
 use syntax::parse::tts_to_parser;
 
+use generator::Generate;
+
 mod block;
 mod parser;
 mod generator;
@@ -23,7 +25,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
 fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
     let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg());
     let block = parser::parse(&mut parser);
-    let item = generator::generate(cx, &block);
+    let item = block.generate(cx);
 
     let attrs = vec![
         cx.attribute(
