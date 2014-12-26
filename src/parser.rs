@@ -15,7 +15,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     let mut blocks = vec![];
 
     loop {
-        if parser.token == brace {
+        if parser.token == brace || parser.token == token::Eof {
             break
         }
 

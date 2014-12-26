@@ -46,3 +46,35 @@ speculate! {
         }
     }
 }
+
+// Parsing edge cases
+mod ec1 {
+    speculate! {
+    }
+}
+
+mod ec2 {
+    speculate! {
+        before {}
+    }
+}
+
+mod ec3 {
+    speculate! {
+        it "foo" {}
+    }
+}
+
+mod ec4 {
+    speculate! {
+        after {}
+    }
+}
+
+mod ec5 {
+    speculate! {
+        before {}
+        it "foo" {}
+        after {}
+    }
+}
