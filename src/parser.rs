@@ -23,7 +23,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
         let ident = parser.parse_ident();
 
         match ident.as_str() {
-            "describe" => {
+            "describe" | "context" => {
                 let (name, _) = parser.parse_str();
                 parser.expect(&token::OpenDelim(token::Brace));
                 blocks.push(Block::Describe(parse_describe(name.get(), parser)))
@@ -49,7 +49,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
 
             otherwise => {
                 let message = format!("Expected \
-`describe`, `before`, `after`, or `it`, found `{}`", otherwise);
+`describe`, `context`, `before`, `after`, or `it`, found `{}`", otherwise);
                 parser.span_fatal(span, message.as_slice())
             }
         }

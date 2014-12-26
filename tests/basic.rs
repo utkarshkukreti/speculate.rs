@@ -28,7 +28,7 @@ speculate! {
             i = 5;
         }
 
-        describe "nested" {
+        context "nested" {
             before {
                 assert_eq!(i, 1);
                 i = 2;
