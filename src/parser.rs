@@ -50,7 +50,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             otherwise => {
                 let message = format!("Expected \
 `describe`, `context`, `before`, `after`, or `it`, found `{}`", otherwise);
-                parser.span_fatal(span, message.as_slice())
+                parser.span_fatal(span, message[])
             }
         }
     }

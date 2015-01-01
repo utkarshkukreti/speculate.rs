@@ -26,7 +26,7 @@ impl Generate for Describe {
     fn generate(mut self,
                 cx: &mut ExtCtxt,
                 up: Option<&Describe>) -> P<ast::Item> {
-        let name = cx.ident_of(self.name.as_slice());
+        let name = cx.ident_of(self.name[]);
 
         if let Some(ref up) = up {
             if let Some(ref before) = up.before {
@@ -63,7 +63,7 @@ impl Generate for Describe {
 
 impl Generate for It {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
-        let name = cx.ident_of(self.name.as_slice());
+        let name = cx.ident_of(self.name[]);
         let attrs = vec![
             cx.attribute(
                 DUMMY_SP,
