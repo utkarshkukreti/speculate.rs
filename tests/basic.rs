@@ -27,6 +27,11 @@ speculate! {
             i = 1;
         }
 
+        it "works at level 2!" {
+            assert_eq!(i, 1);
+            i = 4;
+        }
+
         after {
             assert_eq!(i, 4);
             i = 5;
@@ -48,6 +53,16 @@ speculate! {
                 i = 4;
             }
         }
+
+        it "works at level 2 after context!" {
+            assert_eq!(i, 1);
+            i = 4;
+        }
+    }
+
+    it "works at level 1 after describe!" {
+        assert_eq!(i, zero());
+        i = 5;
     }
 }
 
