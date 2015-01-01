@@ -3,9 +3,13 @@
 #[phase(plugin)]
 extern crate speculate;
 
+pub fn zero() -> uint {
+    0
+}
+
 speculate! {
     before {
-        let mut i = 0u;
+        let mut i = zero();
     }
 
     after {
@@ -13,13 +17,13 @@ speculate! {
     }
 
     it "works at level 1!" {
-        assert_eq!(i, 0);
+        assert_eq!(i, zero());
         i = 5;
     }
 
     describe "something" {
         before {
-            assert_eq!(i, 0);
+            assert_eq!(i, zero());
             i = 1;
         }
 

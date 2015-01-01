@@ -48,7 +48,16 @@ impl Generate for Describe {
             block.clone().generate(cx, Some(&self))
         }).collect();
 
-        cx.item_mod(DUMMY_SP, DUMMY_SP, name, vec![], vec![], items)
+        let pub_use_super_star = cx.view_use_glob(DUMMY_SP,
+                                                  ast::Visibility::Public,
+                                                  vec![cx.ident_of("super")]);
+
+        cx.item_mod(DUMMY_SP,
+                    DUMMY_SP,
+                    name,
+                    vec![],
+                    vec![pub_use_super_star],
+                    items)
     }
 }
 
