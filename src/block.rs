@@ -4,7 +4,8 @@ use syntax::ptr::P;
 #[deriving(Clone, Show)]
 pub enum Block {
     Describe(Describe),
-    It(It)
+    It(It),
+    Bench(Bench)
 }
 
 #[deriving(Clone, Show)]
@@ -18,5 +19,12 @@ pub struct Describe {
 #[deriving(Clone, Show)]
 pub struct It {
     pub name: String,
+    pub block: P<ast::Block>
+}
+
+#[deriving(Clone, Show)]
+pub struct Bench {
+    pub name: String,
+    pub ident: ast::Ident,
     pub block: P<ast::Block>
 }

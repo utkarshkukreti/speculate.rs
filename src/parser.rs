@@ -1,7 +1,7 @@
 use syntax::parse::parser::Parser;
 use syntax::parse::token;
 
-use block::{Block, Describe, It};
+use block::{Block, Describe, It, Bench};
 
 pub fn parse(parser: &mut Parser) -> Describe {
     parse_describe("sup", parser)
@@ -37,6 +37,20 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
 
                 blocks.push(Block::It(It {
                     name: name.get().to_string(),
+                    block: block
+                }))
+            },
+
+            "bench" => {
+                let (name, _) = parser.parse_str();
+                parser.expect(&token::BinOp(token::Or));
+                let ident = parser.parse_ident();
+                parser.expect(&token::BinOp(token::Or));
+                let block = parser.parse_block();
+
+                blocks.push(Block::Bench(Bench {
+                    name: name.get().to_string(),
+                    ident: ident,
                     block: block
                 }))
             },

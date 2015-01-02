@@ -7,7 +7,7 @@ use syntax::ext::build::AstBuilder;
 use syntax::ptr::P;
 use syntax::parse::token;
 
-use block::{Block, Describe, It};
+use block::{Block, Describe, It, Bench};
 
 pub trait Generate {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item>;
@@ -17,7 +17,8 @@ impl Generate for Block {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         match self {
             Block::Describe(describe) => describe.generate(cx, up),
-            Block::It(it) => it.generate(cx, up)
+            Block::It(it) => it.generate(cx, up),
+            Block::Bench(bench) => bench.generate(cx, up)
         }
     }
 }
@@ -91,6 +92,32 @@ impl Generate for It {
                     abi::Rust,
                     ast_util::empty_generics(),
                     block
+                ))
+    }
+}
+
+impl Generate for Bench {
+    fn generate(self, cx: &mut ExtCtxt, _up: Option<&Describe>) -> P<ast::Item> {
+        let name = cx.ident_of(self.name[]);
+
+        let attrs = vec![
+            cx.attribute(
+                DUMMY_SP,
+                cx.meta_word(DUMMY_SP, token::InternedString::new("bench"))
+            )
+        ];
+
+        let args = vec![
+            cx.arg(DUMMY_SP, self.ident, quote_ty!(cx, &mut ::test::Bencher))
+        ];
+
+        cx.item(DUMMY_SP, name, attrs,
+                ast::ItemFn(
+                    cx.fn_decl(args, cx.ty(DUMMY_SP, ast::TyTup(vec![]))),
+                    ast::Unsafety::Normal,
+                    abi::Rust,
+                    ast_util::empty_generics(),
+                    self.block
                 ))
     }
 }

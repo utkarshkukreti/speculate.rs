@@ -1,4 +1,4 @@
-#![feature(plugin_registrar, slicing_syntax)]
+#![feature(plugin_registrar, quote, slicing_syntax)]
 extern crate rustc;
 extern crate syntax;
 
