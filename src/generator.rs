@@ -97,7 +97,7 @@ impl Generate for It {
 }
 
 impl Generate for Bench {
-    fn generate(self, cx: &mut ExtCtxt, _up: Option<&Describe>) -> P<ast::Item> {
+    fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(self.name[]);
 
         let attrs = vec![
@@ -111,13 +111,26 @@ impl Generate for Bench {
             cx.arg(DUMMY_SP, self.ident, quote_ty!(cx, &mut ::test::Bencher))
         ];
 
+        let block = if let Some(ref up) = up {
+            match (&up.before, &up.after) {
+                (&Some(ref before), &Some(ref after)) => {
+                    merge_blocks(&merge_blocks(before, &self.block), after)
+                },
+                (&Some(ref before), &None) => merge_blocks(before, &self.block),
+                (&None, &Some(ref after)) => merge_blocks(&self.block, after),
+                (&None, &None) => self.block.clone()
+            }
+        } else {
+            self.block
+        };
+
         cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
                     cx.fn_decl(args, cx.ty(DUMMY_SP, ast::TyTup(vec![]))),
                     ast::Unsafety::Normal,
                     abi::Rust,
                     ast_util::empty_generics(),
-                    self.block
+                    block
                 ))
     }
 }
