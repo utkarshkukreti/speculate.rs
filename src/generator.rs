@@ -136,6 +136,8 @@ impl Generate for Bench {
 }
 
 fn merge_blocks(left: &P<ast::Block>, right: &P<ast::Block>) -> P<ast::Block> {
+    use std::ops::Deref;
+
     P(ast::Block {
         view_items: left.view_items.clone() + right.view_items[],
         stmts: left.stmts.clone() + right.stmts[],

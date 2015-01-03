@@ -1,14 +1,14 @@
 use syntax::ast;
 use syntax::ptr::P;
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub enum Block {
     Describe(Describe),
     It(It),
     Bench(Bench)
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub struct Describe {
     pub name: String,
     pub before: Option<P<ast::Block>>,
@@ -16,13 +16,13 @@ pub struct Describe {
     pub blocks: Vec<Block>
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub struct It {
     pub name: String,
     pub block: P<ast::Block>
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 pub struct Bench {
     pub name: String,
     pub ident: ast::Ident,

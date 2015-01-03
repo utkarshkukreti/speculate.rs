@@ -3,7 +3,7 @@ extern crate rustc;
 extern crate syntax;
 
 use rustc::plugin::Registry;
-use syntax::ast::{mod, TokenTree};
+use syntax::ast::{self, TokenTree};
 use syntax::codemap::DUMMY_SP;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacItems, MacResult};
