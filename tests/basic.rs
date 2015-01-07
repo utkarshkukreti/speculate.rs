@@ -1,6 +1,6 @@
-#![feature(phase)]
+#![feature(plugin)]
 
-#[phase(plugin)]
+#[plugin]
 extern crate speculate;
 
 pub fn zero() -> uint {
