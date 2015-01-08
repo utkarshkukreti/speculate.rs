@@ -3,6 +3,9 @@
 name = "speculate"
 version = "0.0.1"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
+description = "An RSpec inspired minimal testing framework for Rust."
+repository = "https://github.com/utkarshkukreti/speculate.rs"
+license = "MIT"
 
 [lib]
 name = "speculate"
