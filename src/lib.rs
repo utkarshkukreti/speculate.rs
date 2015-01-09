@@ -1,3 +1,4 @@
+#![allow(unstable)]
 #![feature(plugin_registrar, quote, slicing_syntax)]
 extern crate rustc;
 extern crate syntax;

@@ -1,9 +1,10 @@
+#![allow(unstable)]
 #![feature(plugin)]
 
 #[plugin]
 extern crate speculate;
 
-pub fn zero() -> uint {
+pub fn zero() -> u32 {
     0
 }
 

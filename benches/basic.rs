@@ -1,3 +1,4 @@
+#![allow(unstable)]
 #![feature(plugin)]
 
 #[plugin]
@@ -13,7 +14,7 @@ speculate! {
     describe "xor" {
         context "0 to 1000" {
             before {
-                let limit = 1000u;
+                let limit = 1000u32;
             }
 
             bench "using `fold`" |b| {
@@ -23,7 +24,7 @@ speculate! {
             bench "using `for`" |b| {
                 b.iter(|| {
                     let mut ret = 0;
-                    for i in range(0u, limit) {
+                    for i in range(0, limit) {
                         ret ^= i;
                     }
                     ret
