@@ -87,7 +87,11 @@ impl Generate for It {
 
         cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
-                    cx.fn_decl(vec![], cx.ty(DUMMY_SP, ast::TyTup(vec![]))),
+                    P(ast::FnDecl {
+                        inputs: vec![],
+                        output: ast::DefaultReturn(DUMMY_SP),
+                        variadic: false
+                    }),
                     ast::Unsafety::Normal,
                     abi::Rust,
                     ast_util::empty_generics(),
@@ -126,7 +130,11 @@ impl Generate for Bench {
 
         cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
-                    cx.fn_decl(args, cx.ty(DUMMY_SP, ast::TyTup(vec![]))),
+                    P(ast::FnDecl {
+                        inputs: args,
+                        output: ast::DefaultReturn(DUMMY_SP),
+                        variadic: false
+                    }),
                     ast::Unsafety::Normal,
                     abi::Rust,
                     ast_util::empty_generics(),
