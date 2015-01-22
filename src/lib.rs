@@ -43,12 +43,12 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
         )
     ];
 
-    let pub_use_super_star = cx.view_use_glob(DUMMY_SP,
+    let pub_use_super_star = cx.item_use_glob(DUMMY_SP,
                                               ast::Visibility::Public,
                                               vec![cx.ident_of("super")]);
 
     let module = cx.item_mod(DUMMY_SP, DUMMY_SP, cx.ident_of("sup"),
-                             attrs, vec![pub_use_super_star], vec![item]);
+                             attrs, vec![pub_use_super_star, item]);
 
     MacItems::new(Some(module).into_iter())
 }

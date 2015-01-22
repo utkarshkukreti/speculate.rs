@@ -45,19 +45,20 @@ impl Generate for Describe {
             }
         }
 
-        let items = self.blocks.iter().map(|block| {
+        let mut items = self.blocks.iter().map(|block| {
             block.clone().generate(cx, Some(&self))
-        }).collect();
+        }).collect::<Vec<_>>();
 
-        let pub_use_super_star = cx.view_use_glob(DUMMY_SP,
+        let pub_use_super_star = cx.item_use_glob(DUMMY_SP,
                                                   ast::Visibility::Public,
                                                   vec![cx.ident_of("super")]);
+
+        items.push(pub_use_super_star);
 
         cx.item_mod(DUMMY_SP,
                     DUMMY_SP,
                     name,
                     vec![],
-                    vec![pub_use_super_star],
                     items)
     }
 }
@@ -147,7 +148,6 @@ fn merge_blocks(left: &P<ast::Block>, right: &P<ast::Block>) -> P<ast::Block> {
     use std::ops::Deref;
 
     P(ast::Block {
-        view_items: left.view_items.clone() + &*right.view_items,
         stmts: left.stmts.clone() + &*right.stmts,
         ..left.deref().clone()
     })
