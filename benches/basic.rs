@@ -1,5 +1,4 @@
-#![allow(unstable)]
-#![feature(plugin)]
+#![feature(plugin, core, test)]
 
 #[plugin]
 extern crate speculate;
