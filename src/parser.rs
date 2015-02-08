@@ -28,7 +28,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             "describe" | "context" => {
                 let (name, _) = parser.parse_str();
                 parser.expect(&token::OpenDelim(token::Brace));
-                let block = Block::Describe(parse_describe(name.get(), parser));
+                let block = Block::Describe(parse_describe(&name, parser));
                 parser.expect(&token::CloseDelim(token::Brace));
                 blocks.push(block);
             },
@@ -38,7 +38,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 let block = parse_block(parser);
 
                 blocks.push(Block::It(It {
-                    name: name.get().to_string(),
+                    name: name.to_string(),
                     block: block
                 }))
             },
@@ -51,7 +51,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 let block = parse_block(parser);
 
                 blocks.push(Block::Bench(Bench {
-                    name: name.get().to_string(),
+                    name: name.to_string(),
                     ident: ident,
                     block: block
                 }))
