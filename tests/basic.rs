@@ -1,6 +1,6 @@
 #![feature(plugin)]
+#![plugin(speculate)]
 
-#[plugin]
 extern crate speculate;
 
 pub fn zero() -> u32 {
