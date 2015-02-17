@@ -33,7 +33,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 blocks.push(block);
             },
 
-            "it" => {
+            "it" | "test" => {
                 let (name, _) = parser.parse_str();
                 let block = parse_block(parser);
 

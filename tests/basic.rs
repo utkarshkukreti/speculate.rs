@@ -41,7 +41,7 @@ speculate! {
                 i = 2;
             }
 
-            it "works at level 3!" {
+            test "works at level 3!" {
                 assert_eq!(i, 2);
                 i = 3;
             }
