@@ -7,10 +7,11 @@ use rustc::plugin::Registry;
 use syntax::ast::{self, TokenTree};
 use syntax::codemap::DUMMY_SP;
 use syntax::codemap::Span;
-use syntax::ext::base::{ExtCtxt, MacItems, MacResult};
+use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
 use syntax::ext::build::AstBuilder;
 use syntax::parse::token;
 use syntax::parse::tts_to_parser;
+use syntax::util::small_vector::SmallVector;
 
 use generator::Generate;
 
@@ -50,5 +51,5 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
     let module = cx.item_mod(DUMMY_SP, DUMMY_SP, cx.ident_of("sup"),
                              attrs, vec![pub_use_super_star, item]);
 
-    MacItems::new(Some(module).into_iter())
+    MacEager::items(SmallVector::one(module))
 }
