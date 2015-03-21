@@ -15,13 +15,13 @@ speculate! {
             }
 
             bench "using `fold`" |b| {
-                b.iter(|| range(0, limit).fold(0, |a, b| a ^ b));
+                b.iter(|| (0..limit).fold(0, |a, b| a ^ b));
             }
 
             bench "using `for`" |b| {
                 b.iter(|| {
                     let mut ret = 0;
-                    for i in range(0, limit) {
+                    for i in 0..limit {
                         ret ^= i;
                     }
                     ret
