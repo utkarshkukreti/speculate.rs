@@ -22,19 +22,19 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
         }
 
         let span = parser.span;
-        let ident = parser.parse_ident();
+        let ident = parser.parse_ident().unwrap();
 
         match ident.as_str() {
             "describe" | "context" => {
-                let (name, _) = parser.parse_str();
-                parser.expect(&token::OpenDelim(token::Brace));
+                let (name, _) = parser.parse_str().unwrap();
+                parser.expect(&token::OpenDelim(token::Brace)).unwrap();
                 let block = Block::Describe(parse_describe(&name, parser));
-                parser.expect(&token::CloseDelim(token::Brace));
+                parser.expect(&token::CloseDelim(token::Brace)).unwrap();
                 blocks.push(block);
             },
 
             "it" | "test" => {
-                let (name, _) = parser.parse_str();
+                let (name, _) = parser.parse_str().unwrap();
                 let block = parse_block(parser);
 
                 blocks.push(Block::It(It {
@@ -44,10 +44,10 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             },
 
             "bench" => {
-                let (name, _) = parser.parse_str();
-                parser.expect(&token::BinOp(token::Or));
-                let ident = parser.parse_ident();
-                parser.expect(&token::BinOp(token::Or));
+                let (name, _) = parser.parse_str().unwrap();
+                parser.expect(&token::BinOp(token::Or)).unwrap();
+                let ident = parser.parse_ident().unwrap();
+                parser.expect(&token::BinOp(token::Or)).unwrap();
                 let block = parse_block(parser);
 
                 blocks.push(Block::Bench(Bench {
@@ -68,7 +68,7 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             otherwise => {
                 let message = format!("Expected \
 `describe`, `context`, `before`, `after`, or `it`, found `{}`", otherwise);
-                parser.span_fatal(span, &*message)
+                panic!("{}", parser.span_fatal(span, &*message))
             }
         }
     }
@@ -83,11 +83,11 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
 
 fn parse_block(parser: &mut Parser) -> P<ast::Block> {
     let span = parser.span;
-    let block = parser.parse_block();
+    let block = parser.parse_block().unwrap();
     if block.expr.is_some() {
-        parser.span_fatal(
+        panic!("{}", parser.span_fatal(
             span,
-            "last expression in this block must be terminated by `;`")
+            "last expression in this block must be terminated by `;`"))
     }
     block
 }
