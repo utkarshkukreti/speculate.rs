@@ -147,8 +147,11 @@ impl Generate for Bench {
 fn merge_blocks(left: &P<ast::Block>, right: &P<ast::Block>) -> P<ast::Block> {
     use std::ops::Deref;
 
+    let mut stmts = left.stmts.clone();
+    stmts.push_all(&right.stmts);
+
     P(ast::Block {
-        stmts: left.stmts.clone() + &*right.stmts,
+        stmts: stmts,
         ..left.deref().clone()
     })
 }
