@@ -94,6 +94,7 @@ impl Generate for It {
                         variadic: false
                     }),
                     ast::Unsafety::Normal,
+                    ast::Constness::NotConst,
                     abi::Rust,
                     ast_util::empty_generics(),
                     block
@@ -137,6 +138,7 @@ impl Generate for Bench {
                         variadic: false
                     }),
                     ast::Unsafety::Normal,
+                    ast::Constness::NotConst,
                     abi::Rust,
                     ast_util::empty_generics(),
                     block
