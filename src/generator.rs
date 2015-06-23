@@ -150,7 +150,7 @@ fn merge_blocks(left: &P<ast::Block>, right: &P<ast::Block>) -> P<ast::Block> {
     use std::ops::Deref;
 
     let mut stmts = left.stmts.clone();
-    stmts.push_all(&right.stmts);
+    stmts.extend(right.stmts.clone());
 
     P(ast::Block {
         stmts: stmts,
