@@ -5,7 +5,6 @@ use syntax::codemap::DUMMY_SP;
 use syntax::ext::base::ExtCtxt;
 use syntax::ext::build::AstBuilder;
 use syntax::ptr::P;
-use syntax::parse::token;
 
 use block::{Block, Describe, It, Bench};
 
@@ -66,12 +65,7 @@ impl Generate for Describe {
 impl Generate for It {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
-        let attrs = vec![
-            cx.attribute(
-                DUMMY_SP,
-                cx.meta_word(DUMMY_SP, token::InternedString::new("test"))
-            )
-        ];
+        let attrs = vec![quote_attr!(cx, #[test])];
 
         let block = if let Some(ref up) = up {
             match (&up.before, &up.after) {
@@ -106,12 +100,7 @@ impl Generate for Bench {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
 
-        let attrs = vec![
-            cx.attribute(
-                DUMMY_SP,
-                cx.meta_word(DUMMY_SP, token::InternedString::new("bench"))
-            )
-        ];
+        let attrs = vec![quote_attr!(cx, #[bench])];
 
         let args = vec![
             cx.arg(DUMMY_SP, self.ident, quote_ty!(cx, &mut ::test::Bencher))

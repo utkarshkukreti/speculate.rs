@@ -9,7 +9,6 @@ use syntax::codemap::DUMMY_SP;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
 use syntax::ext::build::AstBuilder;
-use syntax::parse::token;
 use syntax::parse::tts_to_parser;
 use syntax::util::small_vector::SmallVector;
 
@@ -29,20 +28,7 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
     let block = parser::parse(&mut parser);
     let item = block.generate(cx, None);
 
-    let attrs = vec![
-        cx.attribute(
-            DUMMY_SP,
-            cx.meta_list(
-                DUMMY_SP,
-                token::InternedString::new("allow"),
-                vec![
-                    cx.meta_word(
-                        DUMMY_SP,
-                        token::InternedString::new("non_snake_case"))
-                ]
-            )
-        )
-    ];
+    let attrs = vec![quote_attr!(cx, #[allow(non_snake_case)])];
 
     let pub_use_super_star = cx.item_use_glob(DUMMY_SP,
                                               ast::Visibility::Public,
