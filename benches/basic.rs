@@ -1,4 +1,4 @@
-#![feature(plugin, core, test)]
+#![feature(plugin, test)]
 #![plugin(speculate)]
 
 extern crate test;
