@@ -48,11 +48,7 @@ impl Generate for Describe {
             block.clone().generate(cx, Some(&self))
         }).collect::<Vec<_>>();
 
-        let pub_use_super_star = cx.item_use_glob(DUMMY_SP,
-                                                  ast::Visibility::Public,
-                                                  vec![cx.ident_of("super")]);
-
-        items.push(pub_use_super_star);
+        items.push(quote_item!(cx, pub use super::*;).unwrap());
 
         cx.item_mod(DUMMY_SP,
                     DUMMY_SP,
