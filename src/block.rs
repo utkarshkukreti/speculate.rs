@@ -11,8 +11,8 @@ pub enum Block {
 #[derive(Clone, Debug)]
 pub struct Describe {
     pub name: String,
-    pub before: Option<P<ast::Block>>,
-    pub after: Option<P<ast::Block>>,
+    pub before: Vec<P<ast::Block>>,
+    pub after: Vec<P<ast::Block>>,
     pub blocks: Vec<Block>
 }
 

@@ -12,8 +12,8 @@ pub fn parse(parser: &mut Parser) -> Describe {
 pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     let brace = token::CloseDelim(token::Brace);
 
-    let mut before = None;
-    let mut after = None;
+    let mut before = vec![];
+    let mut after = vec![];
     let mut blocks = vec![];
 
     loop {
@@ -58,11 +58,11 @@ pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             },
 
             "before" => {
-                before = Some(parse_block(parser));
+                before.push(parse_block(parser));
             },
 
             "after" => {
-                after = Some(parse_block(parser));
+                after.push(parse_block(parser));
             },
 
             otherwise => {

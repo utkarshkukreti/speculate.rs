@@ -29,19 +29,14 @@ impl Generate for Describe {
         let name = cx.ident_of(&self.name);
 
         if let Some(ref up) = up {
-            if let Some(ref before) = up.before {
-                self.before = match self.before {
-                    Some(ref now) => Some(merge_blocks(before, now)),
-                    None => Some(before.clone())
-                }
-            }
-
-            if let Some(ref after) = up.after {
-                self.after = match self.after {
-                    Some(ref now) => Some(merge_blocks(now, after)),
-                    None => Some(after.clone())
-                }
-            }
+            self.before = up.before.iter()
+                .chain(self.before.iter())
+                .cloned()
+                .collect();
+            self.after = self.after.iter()
+                .chain(up.after.iter())
+                .cloned()
+                .collect();
         }
 
         let mut items = self.blocks.iter().map(|block| {
@@ -64,17 +59,16 @@ impl Generate for It {
         let attrs = vec![quote_attr!(cx, #[test])];
 
         let block = if let Some(ref up) = up {
-            match (&up.before, &up.after) {
-                (&Some(ref before), &Some(ref after)) => {
-                    merge_blocks(&merge_blocks(before, &self.block), after)
-                },
-                (&Some(ref before), &None) => merge_blocks(before, &self.block),
-                (&None, &Some(ref after)) => merge_blocks(&self.block, after),
-                (&None, &None) => self.block.clone()
-            }
+            up.before.iter()
+                .chain(Some(self.block).iter())
+                .chain(up.after.iter())
+                .cloned().collect()
         } else {
-            self.block
+            vec![self.block]
         };
+
+        let mut block = block.into_iter();
+        let head = block.next().unwrap();
 
         cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
@@ -87,7 +81,7 @@ impl Generate for It {
                     ast::Constness::NotConst,
                     abi::Rust,
                     ast_util::empty_generics(),
-                    block
+                    block.fold(head, merge_blocks)
                 ))
     }
 }
@@ -103,17 +97,16 @@ impl Generate for Bench {
         ];
 
         let block = if let Some(ref up) = up {
-            match (&up.before, &up.after) {
-                (&Some(ref before), &Some(ref after)) => {
-                    merge_blocks(&merge_blocks(before, &self.block), after)
-                },
-                (&Some(ref before), &None) => merge_blocks(before, &self.block),
-                (&None, &Some(ref after)) => merge_blocks(&self.block, after),
-                (&None, &None) => self.block.clone()
-            }
+            up.before.iter()
+                .chain(Some(self.block).iter())
+                .chain(up.after.iter())
+                .cloned().collect()
         } else {
-            self.block
+            vec![self.block]
         };
+
+        let mut block = block.into_iter();
+        let head = block.next().unwrap();
 
         cx.item(DUMMY_SP, name, attrs,
                 ast::ItemFn(
@@ -126,12 +119,12 @@ impl Generate for Bench {
                     ast::Constness::NotConst,
                     abi::Rust,
                     ast_util::empty_generics(),
-                    block
+                    block.fold(head, merge_blocks)
                 ))
     }
 }
 
-fn merge_blocks(left: &P<ast::Block>, right: &P<ast::Block>) -> P<ast::Block> {
+fn merge_blocks(left: P<ast::Block>, right: P<ast::Block>) -> P<ast::Block> {
     use std::ops::Deref;
 
     let mut stmts = left.stmts.clone();

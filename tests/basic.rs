@@ -10,18 +10,26 @@ speculate! {
         let mut i = zero();
     }
 
+    before {
+        i += 1;
+    }
+
     after {
-        assert_eq!(i, 5);
+        i += 1;
+    }
+
+    after {
+        assert_eq!(i, 6);
     }
 
     it "works at level 1!" {
-        assert_eq!(i, zero());
+        assert_eq!(i, zero() + 1);
         i = 5;
     }
 
     describe "something" {
         before {
-            assert_eq!(i, zero());
+            assert_eq!(i, zero() + 1);
             i = 1;
         }
 
@@ -59,7 +67,7 @@ speculate! {
     }
 
     it "works at level 1 after describe!" {
-        assert_eq!(i, zero());
+        assert_eq!(i, zero() + 1);
         i = 5;
     }
 }
