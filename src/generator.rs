@@ -56,7 +56,6 @@ impl Generate for Describe {
 impl Generate for It {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
-        let attrs = vec![quote_attr!(cx, #[test])];
 
         let block = if let Some(ref up) = up {
             up.before.iter()
@@ -69,20 +68,9 @@ impl Generate for It {
 
         let mut block = block.into_iter();
         let head = block.next().unwrap();
+        let block = block.fold(head, merge_blocks);
 
-        cx.item(DUMMY_SP, name, attrs,
-                ast::ItemFn(
-                    P(ast::FnDecl {
-                        inputs: vec![],
-                        output: ast::DefaultReturn(DUMMY_SP),
-                        variadic: false
-                    }),
-                    ast::Unsafety::Normal,
-                    ast::Constness::NotConst,
-                    abi::Rust,
-                    ast_util::empty_generics(),
-                    block.fold(head, merge_blocks)
-                ))
+        quote_item!(cx, #[test] fn $name() { $block }).unwrap()
     }
 }
 
