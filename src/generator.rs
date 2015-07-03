@@ -1,6 +1,4 @@
-use syntax::abi;
 use syntax::ast;
-use syntax::ast_util;
 use syntax::codemap::DUMMY_SP;
 use syntax::ext::base::ExtCtxt;
 use syntax::ext::build::AstBuilder;
@@ -78,12 +76,6 @@ impl Generate for Bench {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
 
-        let attrs = vec![quote_attr!(cx, #[bench])];
-
-        let args = vec![
-            cx.arg(DUMMY_SP, self.ident, quote_ty!(cx, &mut ::test::Bencher))
-        ];
-
         let block = if let Some(ref up) = up {
             up.before.iter()
                 .chain(Some(self.block).iter())
@@ -95,20 +87,12 @@ impl Generate for Bench {
 
         let mut block = block.into_iter();
         let head = block.next().unwrap();
+        let block = block.fold(head, merge_blocks);
 
-        cx.item(DUMMY_SP, name, attrs,
-                ast::ItemFn(
-                    P(ast::FnDecl {
-                        inputs: args,
-                        output: ast::DefaultReturn(DUMMY_SP),
-                        variadic: false
-                    }),
-                    ast::Unsafety::Normal,
-                    ast::Constness::NotConst,
-                    abi::Rust,
-                    ast_util::empty_generics(),
-                    block.fold(head, merge_blocks)
-                ))
+        let ident = self.ident;
+        quote_item!(cx, #[bench] fn $name($ident: &mut ::test::Bencher) {
+            $block
+        }).unwrap()
     }
 }
 
