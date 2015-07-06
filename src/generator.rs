@@ -1,5 +1,4 @@
 use syntax::ast;
-use syntax::codemap::DUMMY_SP;
 use syntax::ext::base::ExtCtxt;
 use syntax::ext::build::AstBuilder;
 use syntax::ptr::P;
@@ -43,11 +42,8 @@ impl Generate for Describe {
 
         items.push(quote_item!(cx, pub use super::*;).unwrap());
 
-        cx.item_mod(DUMMY_SP,
-                    DUMMY_SP,
-                    name,
-                    vec![],
-                    items)
+
+        quote_item!(cx, mod $name { $items }).unwrap()
     }
 }
 
