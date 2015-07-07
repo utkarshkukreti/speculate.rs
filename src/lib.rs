@@ -4,11 +4,9 @@ extern crate rustc;
 extern crate syntax;
 
 use rustc::plugin::Registry;
-use syntax::ast::{self, TokenTree};
-use syntax::codemap::DUMMY_SP;
+use syntax::ast::TokenTree;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
-use syntax::ext::build::AstBuilder;
 use syntax::parse::tts_to_parser;
 use syntax::util::small_vector::SmallVector;
 
@@ -28,14 +26,12 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
     let block = parser::parse(&mut parser);
     let item = block.generate(cx, None);
 
-    let attrs = vec![quote_attr!(cx, #[allow(non_snake_case)])];
-
-    let pub_use_super_star = cx.item_use_glob(DUMMY_SP,
-                                              ast::Visibility::Public,
-                                              vec![cx.ident_of("super")]);
-
-    let module = cx.item_mod(DUMMY_SP, DUMMY_SP, cx.ident_of("sup"),
-                             attrs, vec![pub_use_super_star, item]);
+    let module = quote_item!(cx,
+                             #[allow(non_snake_case)]
+                             mod sup {
+                                 pub use super::*;
+                                 $item
+                             }).unwrap();
 
     MacEager::items(SmallVector::one(module))
 }
