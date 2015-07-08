@@ -93,11 +93,8 @@ impl Generate for Bench {
 }
 
 fn merge_blocks(left: P<ast::Block>, right: P<ast::Block>) -> P<ast::Block> {
-    let mut stmts = left.stmts.clone();
-    stmts.extend(right.stmts.clone());
-
     P(ast::Block {
-        stmts: stmts,
+        stmts: left.stmts.iter().chain(right.stmts.iter()).cloned().collect(),
         ..(*left).clone()
     })
 }
