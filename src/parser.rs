@@ -9,7 +9,7 @@ pub fn parse(parser: &mut Parser) -> Describe {
     parse_describe("sup", parser)
 }
 
-pub fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
+fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     let brace = token::CloseDelim(token::Brace);
 
     let mut before = vec![];
