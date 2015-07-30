@@ -24,7 +24,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
         let span = parser.span;
         let ident = parser.parse_ident().unwrap();
 
-        match ident.as_str() {
+        match &*ident.name.as_str() {
             "describe" | "context" => {
                 let (name, _) = parser.parse_str().unwrap();
                 parser.expect(&token::OpenDelim(token::Brace)).unwrap();
