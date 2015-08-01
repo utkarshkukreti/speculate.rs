@@ -36,14 +36,14 @@ impl Generate for Describe {
                 .collect();
         }
 
-        let mut items = self.blocks.iter().map(|block| {
+        let items = self.blocks.iter().map(|block| {
             block.clone().generate(cx, Some(&self))
         }).collect::<Vec<_>>();
 
-        items.push(quote_item!(cx, pub use super::*;).unwrap());
-
-
-        quote_item!(cx, mod $name { $items }).unwrap()
+        quote_item!(cx, mod $name {
+            pub use super::*;
+            $items
+        }).unwrap()
     }
 }
 
