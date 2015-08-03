@@ -51,7 +51,7 @@ impl Generate for It {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
 
-        let block = if let Some(ref up) = up {
+        let blocks = if let Some(ref up) = up {
             up.before.iter()
                 .chain(Some(self.block).iter())
                 .chain(up.after.iter())
@@ -60,9 +60,9 @@ impl Generate for It {
             vec![self.block]
         };
 
-        let mut block = block.into_iter();
-        let head = block.next().unwrap();
-        let block = block.fold(head, merge_blocks);
+        let mut blocks = blocks.into_iter();
+        let head = blocks.next().unwrap();
+        let block = blocks.fold(head, merge_blocks);
 
         quote_item!(cx, #[test] fn $name() { $block }).unwrap()
     }
@@ -72,7 +72,7 @@ impl Generate for Bench {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
 
-        let block = if let Some(ref up) = up {
+        let blocks = if let Some(ref up) = up {
             up.before.iter()
                 .chain(Some(self.block).iter())
                 .chain(up.after.iter())
@@ -81,9 +81,9 @@ impl Generate for Bench {
             vec![self.block]
         };
 
-        let mut block = block.into_iter();
-        let head = block.next().unwrap();
-        let block = block.fold(head, merge_blocks);
+        let mut blocks = blocks.into_iter();
+        let head = blocks.next().unwrap();
+        let block = blocks.fold(head, merge_blocks);
 
         let ident = self.ident;
         quote_item!(cx, #[bench] fn $name($ident: &mut ::test::Bencher) {
