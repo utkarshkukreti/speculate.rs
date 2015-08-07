@@ -10,14 +10,13 @@ pub fn parse(parser: &mut Parser) -> Describe {
 }
 
 fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
-    let brace = token::CloseDelim(token::Brace);
-
     let mut before = vec![];
     let mut after = vec![];
     let mut blocks = vec![];
 
     loop {
-        if parser.token == brace || parser.token == token::Eof {
+        if parser.token == token::CloseDelim(token::Brace) ||
+            parser.token == token::Eof {
             break
         }
 
