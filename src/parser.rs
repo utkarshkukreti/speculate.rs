@@ -73,7 +73,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     }
 
     Describe {
-        name: name.to_string(),
+        name: name.into(),
         before: before,
         after: after,
         blocks: blocks
