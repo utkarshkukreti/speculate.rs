@@ -6,7 +6,7 @@ use syntax::ptr::P;
 use block::{Block, Describe, It, Bench};
 
 pub fn parse(parser: &mut Parser) -> Describe {
-    parse_describe("sup", parser)
+    parse_describe("_", parser)
 }
 
 fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
