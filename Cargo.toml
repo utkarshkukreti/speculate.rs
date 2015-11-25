@@ -1,5 +1,4 @@
 [package]
-
 name = "speculate"
 version = "0.0.17"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
@@ -8,5 +7,4 @@ repository = "https://github.com/utkarshkukreti/speculate.rs"
 license = "MIT"
 
 [lib]
-name = "speculate"
 plugin = true
