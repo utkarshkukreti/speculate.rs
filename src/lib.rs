@@ -1,9 +1,9 @@
 #![feature(rustc_private)]
 #![feature(plugin_registrar, quote)]
-extern crate rustc;
+extern crate rustc_plugin;
 extern crate syntax;
 
-use rustc::plugin::Registry;
+use rustc_plugin::Registry;
 use syntax::ast::TokenTree;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
