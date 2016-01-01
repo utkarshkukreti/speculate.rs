@@ -67,7 +67,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             otherwise => {
                 let message = format!("Expected `describe`, `context`, \
 `before`, `after`, `it`, `test`, or `bench`, found `{}`", otherwise);
-                panic!("{}", parser.span_fatal(span, &message))
+                panic!("{:?}", parser.span_fatal(span, &message))
             }
         }
     }
@@ -84,7 +84,7 @@ fn parse_block(parser: &mut Parser) -> P<ast::Block> {
     let span = parser.span;
     let block = parser.parse_block().unwrap();
     if block.expr.is_some() {
-        panic!("{}", parser.span_fatal(
+        panic!("{:?}", parser.span_fatal(
             span,
             "last expression in this block must be terminated by `;`"))
     }
