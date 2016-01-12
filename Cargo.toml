@@ -4,7 +4,7 @@ version = "0.0.19"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
 description = "An RSpec inspired minimal testing framework for Rust."
 repository = "https://github.com/utkarshkukreti/speculate.rs"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [lib]
 plugin = true
