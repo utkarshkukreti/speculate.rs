@@ -1,7 +1,5 @@
-use syntax::ast;
 use syntax::parse::parser::Parser;
 use syntax::parse::token;
-use syntax::ptr::P;
 
 use block::{Block, Describe, It, Bench};
 
@@ -34,7 +32,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
 
             "it" | "test" => {
                 let (name, _) = parser.parse_str().unwrap();
-                let block = parse_block(parser);
+                let block = parser.parse_block().unwrap();
 
                 blocks.push(Block::It(It {
                     name: name.to_string(),
@@ -47,7 +45,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 parser.expect(&token::BinOp(token::Or)).unwrap();
                 let ident = parser.parse_ident().unwrap();
                 parser.expect(&token::BinOp(token::Or)).unwrap();
-                let block = parse_block(parser);
+                let block = parser.parse_block().unwrap();
 
                 blocks.push(Block::Bench(Bench {
                     name: name.to_string(),
@@ -57,11 +55,11 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             },
 
             "before" => {
-                before.push(parse_block(parser));
+                before.push(parser.parse_block().unwrap());
             },
 
             "after" => {
-                after.push(parse_block(parser));
+                after.push(parser.parse_block().unwrap());
             },
 
             otherwise => {
@@ -78,15 +76,4 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
         after: after,
         blocks: blocks
     }
-}
-
-fn parse_block(parser: &mut Parser) -> P<ast::Block> {
-    let span = parser.span;
-    let block = parser.parse_block().unwrap();
-    if block.expr.is_some() {
-        panic!("{:?}", parser.span_fatal(
-            span,
-            "last expression in this block must be terminated by `;`"))
-    }
-    block
 }

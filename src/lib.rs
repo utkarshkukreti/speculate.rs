@@ -4,10 +4,10 @@ extern crate rustc_plugin;
 extern crate syntax;
 
 use rustc_plugin::Registry;
-use syntax::ast::TokenTree;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
 use syntax::parse::tts_to_parser;
+use syntax::tokenstream::TokenTree;
 use syntax::util::small_vector::SmallVector;
 
 use generator::Generate;

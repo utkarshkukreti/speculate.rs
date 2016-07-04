@@ -1,6 +1,5 @@
 use syntax::ast;
 use syntax::ext::base::ExtCtxt;
-use syntax::ext::build::AstBuilder;
 use syntax::ptr::P;
 
 use block::{Block, Describe, It, Bench};
