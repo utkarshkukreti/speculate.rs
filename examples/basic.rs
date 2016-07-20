@@ -28,5 +28,4 @@ speculate! {
     }
 }
 
-fn main() {
-}
+fn main() {}

@@ -5,7 +5,7 @@ use syntax::ptr::P;
 pub enum Block {
     Describe(Describe),
     It(It),
-    Bench(Bench)
+    Bench(Bench),
 }
 
 #[derive(Clone, Debug)]
@@ -13,18 +13,18 @@ pub struct Describe {
     pub name: String,
     pub before: Vec<P<ast::Block>>,
     pub after: Vec<P<ast::Block>>,
-    pub blocks: Vec<Block>
+    pub blocks: Vec<Block>,
 }
 
 #[derive(Clone, Debug)]
 pub struct It {
     pub name: String,
-    pub block: P<ast::Block>
+    pub block: P<ast::Block>,
 }
 
 #[derive(Clone, Debug)]
 pub struct Bench {
     pub name: String,
     pub ident: ast::Ident,
-    pub block: P<ast::Block>
+    pub block: P<ast::Block>,
 }

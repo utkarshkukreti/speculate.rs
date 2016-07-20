@@ -13,36 +13,38 @@ impl Generate for Block {
         match self {
             Block::Describe(describe) => describe.generate(cx, up),
             Block::It(it) => it.generate(cx, up),
-            Block::Bench(bench) => bench.generate(cx, up)
+            Block::Bench(bench) => bench.generate(cx, up),
         }
     }
 }
 
 impl Generate for Describe {
-    fn generate(mut self,
-                cx: &mut ExtCtxt,
-                up: Option<&Describe>) -> P<ast::Item> {
+    fn generate(mut self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
         let name = cx.ident_of(&self.name);
 
         if let Some(ref up) = up {
-            self.before = up.before.iter()
+            self.before = up.before
+                .iter()
                 .chain(self.before.iter())
                 .cloned()
                 .collect();
-            self.after = self.after.iter()
+            self.after = self.after
+                .iter()
                 .chain(up.after.iter())
                 .cloned()
                 .collect();
         }
 
-        let items = self.blocks.iter().map(|block| {
-            block.clone().generate(cx, Some(&self))
-        }).collect::<Vec<_>>();
+        let items = self.blocks
+            .iter()
+            .map(|block| block.clone().generate(cx, Some(&self)))
+            .collect::<Vec<_>>();
 
         quote_item!(cx, mod $name {
             pub use super::*;
             $items
-        }).unwrap()
+        })
+            .unwrap()
     }
 }
 
@@ -51,10 +53,12 @@ impl Generate for It {
         let name = cx.ident_of(&self.name);
 
         let blocks = if let Some(ref up) = up {
-            up.before.iter()
+            up.before
+                .iter()
                 .chain(Some(self.block).iter())
                 .chain(up.after.iter())
-                .cloned().collect()
+                .cloned()
+                .collect()
         } else {
             vec![self.block]
         };
@@ -72,10 +76,12 @@ impl Generate for Bench {
         let name = cx.ident_of(&self.name);
 
         let blocks = if let Some(ref up) = up {
-            up.before.iter()
+            up.before
+                .iter()
                 .chain(Some(self.block).iter())
                 .chain(up.after.iter())
-                .cloned().collect()
+                .cloned()
+                .collect()
         } else {
             vec![self.block]
         };
@@ -87,7 +93,8 @@ impl Generate for Bench {
         let ident = self.ident;
         quote_item!(cx, #[bench] fn $name($ident: &mut ::test::Bencher) {
             $block
-        }).unwrap()
+        })
+            .unwrap()
     }
 }
 

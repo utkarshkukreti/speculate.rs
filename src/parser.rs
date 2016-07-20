@@ -13,9 +13,8 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     let mut blocks = vec![];
 
     loop {
-        if parser.token == token::CloseDelim(token::Brace) ||
-            parser.token == token::Eof {
-            break
+        if parser.token == token::CloseDelim(token::Brace) || parser.token == token::Eof {
+            break;
         }
 
         let span = parser.span;
@@ -28,7 +27,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 let block = Block::Describe(parse_describe(&name, parser));
                 parser.expect(&token::CloseDelim(token::Brace)).unwrap();
                 blocks.push(block);
-            },
+            }
 
             "it" | "test" => {
                 let (name, _) = parser.parse_str().unwrap();
@@ -36,9 +35,9 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
 
                 blocks.push(Block::It(It {
                     name: name.to_string(),
-                    block: block
+                    block: block,
                 }))
-            },
+            }
 
             "bench" => {
                 let (name, _) = parser.parse_str().unwrap();
@@ -50,21 +49,22 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
                 blocks.push(Block::Bench(Bench {
                     name: name.to_string(),
                     ident: ident,
-                    block: block
+                    block: block,
                 }))
-            },
+            }
 
             "before" => {
                 before.push(parser.parse_block().unwrap());
-            },
+            }
 
             "after" => {
                 after.push(parser.parse_block().unwrap());
-            },
+            }
 
             otherwise => {
                 let message = format!("Expected `describe`, `context`, \
-`before`, `after`, `it`, `test`, or `bench`, found `{}`", otherwise);
+`before`, `after`, `it`, `test`, or `bench`, found `{}`",
+                                      otherwise);
                 panic!("{:?}", parser.span_fatal(span, &message))
             }
         }
@@ -74,6 +74,6 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
         name: name.into(),
         before: before,
         after: after,
-        blocks: blocks
+        blocks: blocks,
     }
 }

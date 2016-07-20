@@ -31,7 +31,8 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
                              mod speculate {
                                  pub use super::*;
                                  $item
-                             }).unwrap();
+                             })
+        .unwrap();
 
     MacEager::items(SmallVector::one(module))
 }

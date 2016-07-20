@@ -74,8 +74,7 @@ speculate! {
 
 // Parsing edge cases
 mod ec1 {
-    speculate! {
-    }
+    speculate!{}
 }
 
 mod ec2 {
