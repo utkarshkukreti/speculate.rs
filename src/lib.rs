@@ -22,7 +22,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
 }
 
 fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
-    let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg());
+    let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec(), cx.cfg().clone());
     let block = parser::parse(&mut parser);
     let item = block.generate(cx, None);
 
