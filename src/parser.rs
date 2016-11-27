@@ -1,13 +1,14 @@
 use syntax::parse::parser::Parser;
 use syntax::parse::token;
+use syntax::symbol::Symbol;
 
 use block::{Block, Describe, It, Bench};
 
 pub fn parse(parser: &mut Parser) -> Describe {
-    parse_describe("_", parser)
+    parse_describe(Symbol::intern("_"), parser)
 }
 
-fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
+fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
     let mut before = vec![];
     let mut after = vec![];
     let mut blocks = vec![];
@@ -24,7 +25,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
             "describe" | "context" => {
                 let (name, _) = parser.parse_str().unwrap();
                 parser.expect(&token::OpenDelim(token::Brace)).unwrap();
-                let block = Block::Describe(parse_describe(&name, parser));
+                let block = Block::Describe(parse_describe(name, parser));
                 parser.expect(&token::CloseDelim(token::Brace)).unwrap();
                 blocks.push(block);
             }
@@ -71,7 +72,7 @@ fn parse_describe(name: &str, parser: &mut Parser) -> Describe {
     }
 
     Describe {
-        name: name.into(),
+        name: name.to_string(),
         before: before,
         after: after,
         blocks: blocks,

@@ -41,7 +41,8 @@ impl Generate for Describe {
             .collect::<Vec<_>>();
 
         quote_item!(cx, mod $name {
-            pub use super::*;
+            #[allow(unused_imports)]
+            use super::*;
             $items
         })
             .unwrap()

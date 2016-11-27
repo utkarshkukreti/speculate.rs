@@ -29,7 +29,8 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
     let module = quote_item!(cx,
                              #[allow(non_snake_case)]
                              mod speculate {
-                                 pub use super::*;
+                                 #[allow(unused_imports)]
+                                 use super::*;
                                  $item
                              })
         .unwrap();
