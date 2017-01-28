@@ -63,34 +63,34 @@ Inside `speculate! { ... }`, you can use 5 different types of blocks:
 #![feature(plugin)]
 #![plugin(speculate)]
 
-pub mod math {
-    pub fn add(a: i32, b: i32) -> i32 {
+speculate! {
+    const ZERO: i32 = 0;
+
+    fn add(a: i32, b: i32) -> i32 {
         a + b
     }
 
-    pub fn sub(a: i32, b: i32) -> i32 {
-        a - b
-    }
-}
-
-speculate! {
     describe "math" {
+        const ONE: i32 = 1;
+
+        fn sub(a: i32, b: i32) -> i32 {
+            a - b
+        }
+
         before {
-            let zero = 0;
-            let one = 1;
+            let two = ONE + ONE;
         }
 
         it "can add stuff" {
-            assert_eq!(one, ::math::add(zero, one));
+            assert_eq!(ONE, add(ZERO, ONE));
+            assert_eq!(two, add(ONE, ONE));
         }
 
         it "can subtract stuff" {
-            assert_eq!(zero, ::math::sub(one, one));
+            assert_eq!(ZERO, sub(ONE, ONE));
+            assert_eq!(ONE, sub(two, ONE));
         }
     }
-}
-
-fn main() {
 }
 ```
 
