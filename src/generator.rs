@@ -14,6 +14,7 @@ impl Generate for Block {
             Block::Describe(describe) => describe.generate(cx, up),
             Block::It(it) => it.generate(cx, up),
             Block::Bench(bench) => bench.generate(cx, up),
+            Block::Item(item) => item,
         }
     }
 }

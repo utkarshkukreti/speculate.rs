@@ -6,6 +6,7 @@ pub enum Block {
     Describe(Describe),
     It(It),
     Bench(Bench),
+    Item(P<ast::Item>),
 }
 
 #[derive(Clone, Debug)]
