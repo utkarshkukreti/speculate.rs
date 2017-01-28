@@ -57,7 +57,7 @@ Inside `speculate! { ... }`, you can use 5 different types of blocks:
   }
   ```
 
-## Complete Example (from `examples/basic.rs`)
+## Complete Example (from `tests/example.rs`)
 
 ```rust
 #![feature(plugin)]
