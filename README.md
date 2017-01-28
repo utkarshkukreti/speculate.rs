@@ -26,7 +26,8 @@ And add the following to the top of the Rust file you want to add tests for:
 ## Usage
 
 Speculate provides the `speculate!` syntax extension.
-Inside `speculate! { ... }`, you can use 5 different types of blocks:
+Inside `speculate! { ... }`, you can have any "Item", like `static`, `const`,
+`fn`, etc, and 5 special types of blocks:
 
 * `describe` (or its alias `context`) - to group tests in a hierarchy, for
   readability. Can be arbitrarily nested.
