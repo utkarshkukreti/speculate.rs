@@ -6,7 +6,7 @@ extern crate syntax;
 use rustc_plugin::Registry;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
-use syntax::parse::tts_to_parser;
+use syntax::parse::stream_to_parser;
 use syntax::tokenstream::TokenTree;
 use syntax::util::small_vector::SmallVector;
 
@@ -22,7 +22,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
 }
 
 fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
-    let mut parser = tts_to_parser(cx.parse_sess(), tokens.to_vec());
+    let mut parser = stream_to_parser(cx.parse_sess(), tokens.iter().cloned().collect());
     let block = parser::parse(&mut parser);
     let item = block.generate(cx, None);
 
