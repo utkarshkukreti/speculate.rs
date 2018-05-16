@@ -5,7 +5,7 @@ use syntax::symbol::Symbol;
 use block::{Block, Describe, It, Bench};
 
 pub fn parse(parser: &mut Parser) -> Describe {
-    parse_describe(Symbol::intern("_"), parser)
+    parse_describe(Symbol::intern("__"), parser)
 }
 
 fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
@@ -19,7 +19,7 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
         }
 
         let span = parser.span;
-        if let token::Ident(ident) = parser.token {
+        if let token::Ident(ident, _ident_style) = parser.token {
             match &*ident.name.as_str() {
                 "describe" | "context" => {
                     parser.bump();
