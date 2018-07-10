@@ -13,8 +13,8 @@ use syntax::util::small_vector::SmallVector;
 use generator::Generate;
 
 mod block;
-mod parser;
 mod generator;
+mod parser;
 
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {

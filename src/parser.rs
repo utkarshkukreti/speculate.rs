@@ -2,7 +2,7 @@ use syntax::parse::parser::Parser;
 use syntax::parse::token;
 use syntax::symbol::Symbol;
 
-use block::{Block, Describe, It, Bench};
+use block::{Bench, Block, Describe, It};
 
 pub fn parse(root_name: &str, parser: &mut Parser) -> Describe {
     parse_describe(Symbol::intern(root_name), parser)
@@ -16,6 +16,11 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
     loop {
         if parser.token == token::CloseDelim(token::Brace) || parser.token == token::Eof {
             break;
+        }
+
+        let mut attributes = vec![];
+        while let token::Pound = parser.token {
+            attributes.push(parser.parse_attribute(false).unwrap());
         }
 
         let span = parser.span;
@@ -39,6 +44,7 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
 
                     blocks.push(Block::It(It {
                         name: name.to_string(),
+                        attributes: attributes,
                         block: block,
                     }))
                 }
@@ -78,19 +84,23 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
                             None => {}
                         }
                     } else {
-                        let message = format!("Expected an item, `describe`, `context`, \
-                                               `before`, `after`, `it`, `test`, or `bench`, \
-                                               found `{}`",
-                                              otherwise);
+                        let message = format!(
+                            "Expected an item, `describe`, `context`, \
+                             `before`, `after`, `it`, `test`, or `bench`, \
+                             found `{}`",
+                            otherwise
+                        );
                         panic!("{:?}", parser.span_fatal(span, &message))
                     }
                 }
             }
         } else {
-            let message = format!("Expected an item, `describe`, `context`, \
-                                   `before`, `after`, `it`, `test`, or `bench`, \
-                                   found `{:?}`",
-                                  parser.token);
+            let message = format!(
+                "Expected an item, `describe`, `context`, \
+                 `before`, `after`, `it`, `test`, or `bench`, \
+                 found `{:?}`",
+                parser.token
+            );
             panic!("{:?}", parser.span_fatal(span, &message))
         }
     }

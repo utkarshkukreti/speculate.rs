@@ -106,3 +106,22 @@ mod ec5 {
         after {}
     }
 }
+
+mod attributes {
+    speculate! {
+        #[ignore]
+        test "ignore" {
+            assert_eq!(1, 2);
+        }
+
+        #[should_panic]
+        test "should panic" {
+            assert_eq!(1, 2);
+        }
+
+        #[should_panic(expected = "foo")]
+        test "should panic with foo" {
+            panic!("foo");
+        }
+    }
+}

@@ -48,6 +48,25 @@ Inside `speculate! { ... }`, you can have any "Item", like `static`, `const`,
   }
   ```
 
+  You can optionally add attributes to this block:
+
+  ```rust
+  #[ignore]
+  test "ignore" {
+      assert_eq!(1, 2);
+  }
+
+  #[should_panic]
+  test "should panic" {
+      assert_eq!(1, 2);
+  }
+
+  #[should_panic(expected = "foo")]
+  test "should panic with foo" {
+      panic!("foo");
+  }
+  ```
+
 * `bench` - contains benchmarks.
 
   For example:

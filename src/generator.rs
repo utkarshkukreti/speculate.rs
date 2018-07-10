@@ -2,7 +2,7 @@ use syntax::ast;
 use syntax::ext::base::ExtCtxt;
 use syntax::ptr::P;
 
-use block::{Block, Describe, It, Bench};
+use block::{Bench, Block, Describe, It};
 
 pub trait Generate {
     fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item>;
@@ -24,19 +24,17 @@ impl Generate for Describe {
         let name = cx.ident_of(&self.name);
 
         if let Some(ref up) = up {
-            self.before = up.before
+            self.before = up
+                .before
                 .iter()
                 .chain(self.before.iter())
                 .cloned()
                 .collect();
-            self.after = self.after
-                .iter()
-                .chain(up.after.iter())
-                .cloned()
-                .collect();
+            self.after = self.after.iter().chain(up.after.iter()).cloned().collect();
         }
 
-        let items = self.blocks
+        let items = self
+            .blocks
             .iter()
             .map(|block| block.clone().generate(cx, Some(&self)))
             .collect::<Vec<_>>();
@@ -45,8 +43,7 @@ impl Generate for Describe {
             #[allow(unused_imports)]
             use super::*;
             $items
-        })
-            .unwrap()
+        }).unwrap()
     }
 }
 
@@ -65,11 +62,12 @@ impl Generate for It {
             vec![self.block]
         };
 
+        let attributes = self.attributes;
         let mut blocks = blocks.into_iter();
         let head = blocks.next().unwrap();
         let block = blocks.fold(head, merge_blocks);
 
-        quote_item!(cx, #[test] fn $name() { $block }).unwrap()
+        quote_item!(cx, #[test] $attributes fn $name() { $block }).unwrap()
     }
 }
 
@@ -95,14 +93,18 @@ impl Generate for Bench {
         let ident = self.ident;
         quote_item!(cx, #[bench] fn $name($ident: &mut ::test::Bencher) {
             $block
-        })
-            .unwrap()
+        }).unwrap()
     }
 }
 
 fn merge_blocks(left: P<ast::Block>, right: P<ast::Block>) -> P<ast::Block> {
     P(ast::Block {
-        stmts: left.stmts.iter().chain(right.stmts.iter()).cloned().collect(),
+        stmts: left
+            .stmts
+            .iter()
+            .chain(right.stmts.iter())
+            .cloned()
+            .collect(),
         ..(*left).clone()
     })
 }

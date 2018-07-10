@@ -20,6 +20,7 @@ pub struct Describe {
 #[derive(Clone, Debug)]
 pub struct It {
     pub name: String,
+    pub attributes: Vec<ast::Attribute>,
     pub block: P<ast::Block>,
 }
 
