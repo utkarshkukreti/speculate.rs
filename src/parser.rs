@@ -4,8 +4,8 @@ use syntax::symbol::Symbol;
 
 use block::{Block, Describe, It, Bench};
 
-pub fn parse(parser: &mut Parser) -> Describe {
-    parse_describe(Symbol::intern("__"), parser)
+pub fn parse(root_name: &str, parser: &mut Parser) -> Describe {
+    parse_describe(Symbol::intern(root_name), parser)
 }
 
 fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {

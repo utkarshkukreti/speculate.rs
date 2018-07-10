@@ -21,19 +21,12 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("speculate", expand_speculate);
 }
 
-fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
+fn expand_speculate(cx: &mut ExtCtxt, sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
+    let mod_name = format!("speculate #{}", sp.lo().0);
+    
     let mut parser = stream_to_parser(cx.parse_sess(), tokens.iter().cloned().collect());
-    let block = parser::parse(&mut parser);
+    let block = parser::parse(&mod_name, &mut parser);
     let item = block.generate(cx, None);
 
-    let module = quote_item!(cx,
-                             #[allow(non_snake_case)]
-                             mod speculate {
-                                 #[allow(unused_imports)]
-                                 use super::*;
-                                 $item
-                             })
-        .unwrap();
-
-    MacEager::items(SmallVector::one(module))
+    MacEager::items(SmallVector::one(item))
 }
