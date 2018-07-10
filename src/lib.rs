@@ -13,8 +13,8 @@ use syntax::util::small_vector::SmallVector;
 use generator::Generate;
 
 mod block;
-mod parser;
 mod generator;
+mod parser;
 
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {
@@ -32,8 +32,7 @@ fn expand_speculate(cx: &mut ExtCtxt, _sp: Span, tokens: &[TokenTree]) -> Box<Ma
                                  #[allow(unused_imports)]
                                  use super::*;
                                  $item
-                             })
-        .unwrap();
+                             }).unwrap();
 
     MacEager::items(SmallVector::one(module))
 }

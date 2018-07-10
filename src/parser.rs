@@ -2,7 +2,7 @@ use syntax::parse::parser::Parser;
 use syntax::parse::token;
 use syntax::symbol::Symbol;
 
-use block::{Block, Describe, It, Bench};
+use block::{Bench, Block, Describe, It};
 
 pub fn parse(parser: &mut Parser) -> Describe {
     parse_describe(Symbol::intern("__"), parser)
@@ -78,19 +78,23 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
                             None => {}
                         }
                     } else {
-                        let message = format!("Expected an item, `describe`, `context`, \
-                                               `before`, `after`, `it`, `test`, or `bench`, \
-                                               found `{}`",
-                                              otherwise);
+                        let message = format!(
+                            "Expected an item, `describe`, `context`, \
+                             `before`, `after`, `it`, `test`, or `bench`, \
+                             found `{}`",
+                            otherwise
+                        );
                         panic!("{:?}", parser.span_fatal(span, &message))
                     }
                 }
             }
         } else {
-            let message = format!("Expected an item, `describe`, `context`, \
-                                   `before`, `after`, `it`, `test`, or `bench`, \
-                                   found `{:?}`",
-                                  parser.token);
+            let message = format!(
+                "Expected an item, `describe`, `context`, \
+                 `before`, `after`, `it`, `test`, or `bench`, \
+                 found `{:?}`",
+                parser.token
+            );
             panic!("{:?}", parser.span_fatal(span, &message))
         }
     }
