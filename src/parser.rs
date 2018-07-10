@@ -18,6 +18,11 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
             break;
         }
 
+        let mut attributes = vec![];
+        while let token::Pound = parser.token {
+            attributes.push(parser.parse_attribute(false).unwrap());
+        }
+
         let span = parser.span;
         if let token::Ident(ident, _ident_style) = parser.token {
             match &*ident.name.as_str() {
@@ -39,6 +44,7 @@ fn parse_describe(name: Symbol, parser: &mut Parser) -> Describe {
 
                     blocks.push(Block::It(It {
                         name: name.to_string(),
+                        attributes: attributes,
                         block: block,
                     }))
                 }

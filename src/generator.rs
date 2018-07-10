@@ -62,11 +62,12 @@ impl Generate for It {
             vec![self.block]
         };
 
+        let attributes = self.attributes;
         let mut blocks = blocks.into_iter();
         let head = blocks.next().unwrap();
         let block = blocks.fold(head, merge_blocks);
 
-        quote_item!(cx, #[test] fn $name() { $block }).unwrap()
+        quote_item!(cx, #[test] $attributes fn $name() { $block }).unwrap()
     }
 }
 
