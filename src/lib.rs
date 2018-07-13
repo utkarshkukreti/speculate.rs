@@ -4,11 +4,10 @@ extern crate rustc_plugin;
 extern crate syntax;
 
 use rustc_plugin::Registry;
-use syntax::attr::HasAttrs;
 use syntax::codemap::Span;
 use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
 use syntax::parse::stream_to_parser;
-use syntax::tokenstream::TokenTree;
+use syntax::tokenstream::{TokenStreamBuilder, TokenTree};
 use syntax::util::small_vector::SmallVector;
 
 use generator::Generate;
@@ -28,10 +27,24 @@ fn expand_speculate(cx: &mut ExtCtxt, sp: Span, tokens: &[TokenTree]) -> Box<Mac
     let mut parser = stream_to_parser(cx.parse_sess(), tokens.iter().cloned().collect());
 
     let block = parser::parse(&mod_name, &mut parser);
-    let item = block.generate(cx, None).map_attrs(|mut attrs| {
-        attrs.push(quote_attr!(cx, #[allow(non_snake_case, unused_imports)])); 
-        attrs
+    let item = block.generate(cx, None);
+    
+    let module = item.map(|mut item| {
+        item.attrs.push(quote_attr!(cx, #[allow(non_snake_case)]));
+        
+        if item.tokens.is_some() {
+            let import = quote_tokens!(cx, #[allow(unused_imports)] use super::*;);
+            let mut builder = TokenStreamBuilder::new();
+
+            for tt in import {
+                builder.push(tt);
+            }
+
+            item.tokens = Some(builder.add(item.tokens.unwrap()).build());
+        }
+        
+        item
     });
 
-    MacEager::items(SmallVector::one(item))
+    MacEager::items(SmallVector::one(module))
 }
