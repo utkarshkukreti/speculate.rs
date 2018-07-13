@@ -21,6 +21,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_macro("speculate", expand_speculate);
 }
 
+#[allow(unused_imports)]
 fn expand_speculate(cx: &mut ExtCtxt, sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
     let mod_name = format!("speculate #{}", sp.lo().0);
     
