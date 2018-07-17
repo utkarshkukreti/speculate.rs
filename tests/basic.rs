@@ -81,6 +81,10 @@ mod ec2 {
     speculate! {
         before {}
     }
+
+    speculate! {
+        // Many modules with different names!
+    }
 }
 
 mod ec3 {
