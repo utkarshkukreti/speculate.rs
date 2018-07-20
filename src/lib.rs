@@ -1,51 +1,43 @@
-#![feature(rustc_private)]
-#![feature(plugin_registrar, quote)]
-extern crate rustc_plugin;
-extern crate syntax;
+#![feature(proc_macro, rustc_private)]
+extern crate proc_macro;
+extern crate proc_macro2;
 
-use rustc_plugin::Registry;
-use syntax::codemap::Span;
-use syntax::ext::base::{ExtCtxt, MacEager, MacResult};
-use syntax::parse::stream_to_parser;
-use syntax::tokenstream::{TokenStreamBuilder, TokenTree};
-use syntax::util::small_vector::SmallVector;
-
-use generator::Generate;
+#[macro_use]
+extern crate syn;
+#[macro_use]
+extern crate quote;
 
 mod block;
 mod generator;
-mod parser;
 
-#[plugin_registrar]
-pub fn plugin_registrar(reg: &mut Registry) {
-    reg.register_macro("speculate", expand_speculate);
+use block::Root;
+use generator::Generate;
+
+use proc_macro::TokenStream;
+
+fn transform(name: &str, input: TokenStream) -> TokenStream {
+    let input: proc_macro2::TokenStream = input.into();
+    let mut root = syn::parse2::<Root>(input).unwrap();
+
+    root.0.name = syn::Ident::new(name, proc_macro2::Span::call_site());
+
+    let mut prefix = quote!( #[allow(non_snake_case)] );
+    let modl = root.0.generate(None);
+
+    prefix.extend(modl);
+    prefix.into()
 }
 
-#[allow(unused_imports)]
-fn expand_speculate(cx: &mut ExtCtxt, sp: Span, tokens: &[TokenTree]) -> Box<MacResult + 'static> {
-    let mod_name = format!("speculate #{}", sp.lo().0);
-    
-    let mut parser = stream_to_parser(cx.parse_sess(), tokens.iter().cloned().collect());
+#[proc_macro]
+pub fn speculate(input: TokenStream) -> TokenStream {
+    // NOTE: We cannot use the name 'speculate' for the generated module, as it conflicts
+    // with the imported symbol 'speculate.'
+    transform("speculate_tests", input)
+}
 
-    let block = parser::parse(&mod_name, &mut parser);
-    let item = block.generate(cx, None);
-    
-    let module = item.map(|mut item| {
-        item.attrs.push(quote_attr!(cx, #[allow(non_snake_case)]));
-        
-        if item.tokens.is_some() {
-            let import = quote_tokens!(cx, #[allow(unused_imports)] use super::*;);
-            let mut builder = TokenStreamBuilder::new();
+#[proc_macro]
+pub fn speculate_again(input: TokenStream) -> TokenStream {
+    let start = proc_macro::Span::call_site().start().line;
 
-            for tt in import {
-                builder.push(tt);
-            }
-
-            item.tokens = Some(builder.add(item.tokens.unwrap()).build());
-        }
-        
-        item
-    });
-
-    MacEager::items(SmallVector::one(module))
+    transform(&format!("speculate_tests_line_{}", start), input)
 }

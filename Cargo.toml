@@ -6,5 +6,12 @@ description = "An RSpec inspired minimal testing framework for Rust."
 repository = "https://github.com/utkarshkukreti/speculate.rs"
 license = "MIT"
 
+[dependencies]
+# Full features are needed for Syn, in order to have the Item enum.
+syn = { version = "^0.14", features = [ "full" ] }
+
+quote = "^0.6"
+proc-macro2 = "^0.4"
+
 [lib]
-plugin = true
+proc-macro = true
