@@ -1,4 +1,5 @@
-#![feature(proc_macro, proc_macro_gen)]
+#![feature(use_extern_macros, proc_macro_gen)]
+
 extern crate speculate;
 
 use speculate::speculate;
