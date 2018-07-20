@@ -46,7 +46,7 @@ impl Generate for Describe {
 
                 #(#items)*
             }
-        ).into()
+        )
     }
 }
 
@@ -74,7 +74,7 @@ impl Generate for It {
             fn #name() {
                 #(#stmts)*
             }
-        ).into()
+        )
     }
 }
 
@@ -101,7 +101,7 @@ impl Generate for Bench {
             fn #name(#ident: &mut ::test::Bencher) {
                 #(#stmts)*
             }
-        ).into()
+        )
     }
 }
 

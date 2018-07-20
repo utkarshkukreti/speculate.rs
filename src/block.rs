@@ -14,7 +14,7 @@ impl Synom for Root {
             let mut after  = vec![];
             let mut blocks = vec![];
 
-            for block in content.into_iter() {
+            for block in content {
                 match block {
                     DescribeBlock::Regular(block) => blocks.push(block),
                     DescribeBlock::Before(block)  => before.push(block),
@@ -40,13 +40,13 @@ pub enum Block {
 
 impl Synom for Block {
     named!(parse -> Self, alt!(
-        syn!(Describe)  => { |describe| Block::Describe(describe) }
+        syn!(Describe)  => { Block::Describe }
         |
-        syn!(It)        => { |it| Block::It(it) }
+        syn!(It)        => { Block::It }
         |
-        syn!(Bench)     => { |bench| Block::Bench(bench) }
+        syn!(Bench)     => { Block::Bench }
         |
-        syn!(syn::Item) => { |item| Block::Item(item) }
+        syn!(syn::Item) => { Block::Item }
     ));
 }
 
@@ -69,7 +69,7 @@ impl Synom for DescribeBlock {
             block: syn!(syn::Block)             >>
             (DescribeBlock::After(block))       )
         |
-        syn!(Block) => { |block| DescribeBlock::Regular(block) }
+        syn!(Block) => { DescribeBlock::Regular }
     ));
 }
 
@@ -90,7 +90,7 @@ impl Synom for Describe {
         ({
             let mut describe = (root.1).0;
 
-            describe.name = litstr_to_ident(name);
+            describe.name = litstr_to_ident(&name);
             describe
         })
     ));
@@ -114,7 +114,7 @@ impl Synom for It {
         block:   syn!(syn::Block)                                   >>
 
         (It {
-            name: litstr_to_ident(name),
+            name: litstr_to_ident(&name),
             attributes: attrs,
             block
         })
@@ -142,17 +142,17 @@ impl Synom for Bench {
         block: syn!(syn::Block)                                     >>
 
         (Bench {
-            name: litstr_to_ident(name),
+            name: litstr_to_ident(&name),
             ident, block
         })
     ));
 }
 
-fn litstr_to_ident(l: syn::LitStr) -> syn::Ident {
+fn litstr_to_ident(l: &syn::LitStr) -> syn::Ident {
     let string = l.value();
     let mut id = String::with_capacity(string.len());
 
-    if string.len() == 0 {
+    if string.is_empty() {
         return syn::Ident::new("_", l.span());
     }
 

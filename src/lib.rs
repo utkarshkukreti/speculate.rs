@@ -1,4 +1,4 @@
-#![feature(proc_macro, rustc_private)]
+#![feature(proc_macro, proc_macro_span, rustc_private)]
 extern crate proc_macro;
 extern crate proc_macro2;
 
