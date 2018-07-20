@@ -1,4 +1,4 @@
-#![feature(proc_macro, proc_macro_gen, test)]
+#![feature(use_extern_macros, proc_macro_gen, test)]
 extern crate speculate;
 extern crate test;
 
