@@ -83,21 +83,16 @@ mod ec1 {
 }
 
 mod ec2 {
-    use speculate::{speculate, speculate_again};
+    use speculate::speculate;
     
     speculate! {
         before {}
-        it "works once" {}
+        it "works" {}
     }
 
-    speculate_again! {
-        // Many modules with different names!
-        it "works twice" {}
-    }
-
-    speculate_again! {
-        // Yup, once again.
-        it "works yet again" {}
+    speculate! {
+        // Many modules in a same scope!
+        it "works again" {}
     }
 }
 
