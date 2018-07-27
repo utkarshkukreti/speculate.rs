@@ -10,8 +10,10 @@ license = "MIT"
 # Full features are needed for Syn, in order to have the Item enum.
 syn = { version = "^0.14", features = [ "full" ] }
 
+# Nightly feature is required to preserve span information.
+proc-macro2 = { version = "^0.4", features = [ "nightly" ] }
+
 quote = "^0.6"
-proc-macro2 = "^0.4"
 
 [lib]
 proc-macro = true
