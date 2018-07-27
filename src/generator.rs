@@ -1,4 +1,4 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 
 use block::{Bench, Block, Describe, It};
 use quote::ToTokens;
@@ -65,7 +65,7 @@ impl Generate for It {
 
         let stmts = flatten_blocks(blocks);
 
-        let name = &self.name;
+        let name = Ident::new(&format!("test_{}", self.name), self.name.span());
         let attributes = self.attributes;
 
         quote_spanned!(name.span() =>
@@ -93,7 +93,7 @@ impl Generate for Bench {
 
         let stmts = flatten_blocks(blocks);
 
-        let name = &self.name;
+        let name = Ident::new(&format!("bench_{}", self.name), self.name.span());
         let ident = self.ident;
 
         quote_spanned!(name.span() =>
