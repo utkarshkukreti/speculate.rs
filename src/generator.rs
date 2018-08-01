@@ -1,28 +1,26 @@
-use syntax::ast;
-use syntax::ext::base::ExtCtxt;
-use syntax::ptr::P;
+use proc_macro2::{Ident, TokenStream};
 
 use block::{Bench, Block, Describe, It};
+use quote::ToTokens;
+use syn;
 
 pub trait Generate {
-    fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item>;
+    fn generate(self, up: Option<&Describe>) -> TokenStream;
 }
 
 impl Generate for Block {
-    fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
+    fn generate(self, up: Option<&Describe>) -> TokenStream {
         match self {
-            Block::Describe(describe) => describe.generate(cx, up),
-            Block::It(it) => it.generate(cx, up),
-            Block::Bench(bench) => bench.generate(cx, up),
-            Block::Item(item) => item,
+            Block::Describe(describe) => describe.generate(up),
+            Block::It(it)             => it.generate(up),
+            Block::Bench(bench)       => bench.generate(up),
+            Block::Item(item)         => item.into_token_stream()
         }
     }
 }
 
 impl Generate for Describe {
-    fn generate(mut self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
-        let name = cx.ident_of(&self.name);
-
+    fn generate(mut self, up: Option<&Describe>) -> TokenStream {
         if let Some(ref up) = up {
             self.before = up
                 .before
@@ -36,21 +34,24 @@ impl Generate for Describe {
         let items = self
             .blocks
             .iter()
-            .map(|block| block.clone().generate(cx, Some(&self)))
+            .map(|block| block.clone().generate(Some(&self)))
             .collect::<Vec<_>>();
 
-        quote_item!(cx, mod $name {
-            #[allow(unused_imports)]
-            use super::*;
-            $items
-        }).unwrap()
+        let name = &self.name;
+
+        quote_spanned!(name.span() =>
+            mod #name {
+                #[allow(unused_imports)]
+                use super::*;
+
+                #(#items)*
+            }
+        )
     }
 }
 
 impl Generate for It {
-    fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
-        let name = cx.ident_of(&self.name);
-
+    fn generate(self, up: Option<&Describe>) -> TokenStream {
         let blocks = if let Some(ref up) = up {
             up.before
                 .iter()
@@ -62,19 +63,23 @@ impl Generate for It {
             vec![self.block]
         };
 
-        let attributes = self.attributes;
-        let mut blocks = blocks.into_iter();
-        let head = blocks.next().unwrap();
-        let block = blocks.fold(head, merge_blocks);
+        let stmts = flatten_blocks(blocks);
 
-        quote_item!(cx, #[test] $attributes fn $name() { $block }).unwrap()
+        let name = Ident::new(&format!("test_{}", self.name), self.name.span());
+        let attributes = self.attributes;
+
+        quote_spanned!(name.span() =>
+            #[test]
+            #(#attributes)*
+            fn #name() {
+                #(#stmts)*
+            }
+        )
     }
 }
 
 impl Generate for Bench {
-    fn generate(self, cx: &mut ExtCtxt, up: Option<&Describe>) -> P<ast::Item> {
-        let name = cx.ident_of(&self.name);
-
+    fn generate(self, up: Option<&Describe>) -> TokenStream {
         let blocks = if let Some(ref up) = up {
             up.before
                 .iter()
@@ -86,25 +91,20 @@ impl Generate for Bench {
             vec![self.block]
         };
 
-        let mut blocks = blocks.into_iter();
-        let head = blocks.next().unwrap();
-        let block = blocks.fold(head, merge_blocks);
+        let stmts = flatten_blocks(blocks);
 
+        let name = Ident::new(&format!("bench_{}", self.name), self.name.span());
         let ident = self.ident;
-        quote_item!(cx, #[bench] fn $name($ident: &mut ::test::Bencher) {
-            $block
-        }).unwrap()
+
+        quote_spanned!(name.span() =>
+            #[bench]
+            fn #name(#ident: &mut ::test::Bencher) {
+                #(#stmts)*
+            }
+        )
     }
 }
 
-fn merge_blocks(left: P<ast::Block>, right: P<ast::Block>) -> P<ast::Block> {
-    P(ast::Block {
-        stmts: left
-            .stmts
-            .iter()
-            .chain(right.stmts.iter())
-            .cloned()
-            .collect(),
-        ..(*left).clone()
-    })
+fn flatten_blocks(blocks: Vec<syn::Block>) -> impl Iterator<Item = syn::Stmt> {
+    blocks.into_iter().flat_map(|block| block.stmts)
 }

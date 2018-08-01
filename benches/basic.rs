@@ -1,7 +1,8 @@
-#![feature(plugin, test)]
-#![plugin(speculate)]
-
+#![feature(use_extern_macros, proc_macro_gen, test)]
+extern crate speculate;
 extern crate test;
+
+use speculate::speculate;
 
 speculate! {
     bench "noop" |b| {

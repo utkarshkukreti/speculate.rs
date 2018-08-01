@@ -1,5 +1,8 @@
-#![feature(plugin)]
-#![plugin(speculate)]
+#![feature(use_extern_macros, proc_macro_gen)]
+
+extern crate speculate;
+
+use speculate::speculate;
 
 pub fn zero() -> u32 {
     0
@@ -74,32 +77,44 @@ speculate! {
 
 // Parsing edge cases
 mod ec1 {
+    use speculate::speculate;
+
     speculate!{}
 }
 
 mod ec2 {
+    use speculate::speculate;
+    
     speculate! {
         before {}
+        it "works" {}
     }
 
     speculate! {
-        // Many modules with different names!
+        // Many modules in a same scope!
+        it "works again" {}
     }
 }
 
 mod ec3 {
+    use speculate::speculate;
+    
     speculate! {
         it "foo" {}
     }
 }
 
 mod ec4 {
+    use speculate::speculate;
+    
     speculate! {
         after {}
     }
 }
 
 mod ec5 {
+    use speculate::speculate;
+    
     speculate! {
         before {}
         it "foo" {}
@@ -108,6 +123,8 @@ mod ec5 {
 }
 
 mod attributes {
+    use speculate::speculate;
+    
     speculate! {
         #[ignore]
         test "ignore" {
