@@ -1,4 +1,4 @@
-#![feature(use_extern_macros, proc_macro_hygiene, test)]
+#![feature(proc_macro_hygiene, test)]
 extern crate speculate;
 extern crate test;
 
