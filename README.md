@@ -19,8 +19,6 @@ speculate = "0.1.0"
 And add the following to the top of the Rust file you want to add tests for:
 
 ```rust
-#![feature(use_extern_macros)]  // Allows loading new procedural macros.
-
 #[cfg(test)]
 extern crate speculate;
 
