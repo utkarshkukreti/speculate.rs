@@ -40,7 +40,7 @@ use proc_macro::TokenStream;
 ///   For example:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_gen, proc_macro_non_items)]
+///   # #![feature(use_extern_macros, proc_macro_hygiene)]
 ///   # extern crate speculate;
 ///   # use speculate::speculate;
 ///   # speculate! {
@@ -53,7 +53,7 @@ use proc_macro::TokenStream;
 ///   You can optionally add attributes to this block:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_gen, proc_macro_non_items)]
+///   # #![feature(use_extern_macros, proc_macro_hygiene)]
 ///   # extern crate speculate;
 ///   # use speculate::speculate;
 ///   # speculate! {
@@ -79,7 +79,7 @@ use proc_macro::TokenStream;
 ///   For example:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_gen, proc_macro_non_items)]
+///   # #![feature(use_extern_macros, proc_macro_hygiene)]
 ///   # extern crate speculate;
 ///   # use speculate::speculate;
 ///   # speculate! {
@@ -95,7 +95,7 @@ use proc_macro::TokenStream;
 /// # Example
 /// 
 /// ```rust
-/// # #![feature(use_extern_macros, proc_macro_gen, proc_macro_non_items)]
+/// # #![feature(use_extern_macros, proc_macro_hygiene)]
 /// # extern crate speculate;
 /// # use speculate::speculate;
 /// speculate! {

@@ -20,7 +20,6 @@ And add the following to the top of the Rust file you want to add tests for:
 
 ```rust
 #![feature(use_extern_macros)]  // Allows loading new procedural macros.
-#![feature(proc_macro_gen)]     // Allows speculate to generate modules.
 
 #[cfg(test)]
 extern crate speculate;
@@ -86,8 +85,6 @@ Inside `speculate! { ... }`, you can have any "Item", like `static`, `const`,
 ## Complete Example (from `tests/example.rs`)
 
 ```rust
-#![feature(use_extern_macros, proc_macro_gen)]
-
 extern crate speculate;
 
 use speculate::speculate;
