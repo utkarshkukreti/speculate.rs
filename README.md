@@ -1,4 +1,4 @@
-# speculate.rs
+# speculate.rs [![Build Status](https://travis-ci.org/utkarshkukreti/speculate.rs.svg?branch=master)](https://travis-ci.org/utkarshkukreti/speculate.rs)
 
 > An RSpec inspired minimal testing framework for Rust.
 
