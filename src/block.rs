@@ -1,6 +1,6 @@
 use syn;
 use syn::synom::Synom;
-
+use unicode_xid::UnicodeXID;
 use proc_macro2::Span;
 
 pub struct Root(pub(crate) Describe);
@@ -161,10 +161,10 @@ fn litstr_to_ident(l: &syn::LitStr) -> syn::Ident {
 
     let first_ch = chars.next().unwrap();
 
-    if !first_ch.is_xid_start() {
+    if !UnicodeXID::is_xid_start(first_ch) {
         id.push('_');
 
-        if first_ch.is_xid_continue() {
+        if UnicodeXID::is_xid_continue(first_ch) {
             id.push(first_ch);
         } else {
             added_underscore = true;
@@ -174,7 +174,7 @@ fn litstr_to_ident(l: &syn::LitStr) -> syn::Ident {
     }
 
     for ch in chars {
-        if ch.is_xid_continue() {
+        if UnicodeXID::is_xid_continue(ch) {
             id.push(ch);
             added_underscore = false;
         } else if !added_underscore {

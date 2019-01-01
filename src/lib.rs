@@ -4,9 +4,11 @@
 //! Please see the documentation for the [`speculate`](./fn.speculate.html) macro
 //! for more information and examples.
 
-#![feature(proc_macro_span, rustc_private)]
+#![cfg_attr(feature="nightly", feature(proc_macro_span))]
+
 extern crate proc_macro;
 extern crate proc_macro2;
+extern crate unicode_xid;
 
 #[macro_use]
 extern crate syn;
@@ -21,6 +23,26 @@ use generator::Generate;
 
 use proc_macro::TokenStream;
 
+#[cfg(not(feature="nightly"))]
+use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+
+#[cfg(feature="nightly")]
+fn get_root_name() -> proc_macro2::Ident {
+    let start_line = proc_macro::Span::call_site().start().line;
+    let module_name = format!("speculate_{}", start_line);
+    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+}
+
+// TODO: Get rid of this once proc_macro_span stabilises
+#[cfg(not(feature="nightly"))]
+static GLOBAL_SPECULATE_COUNT: AtomicUsize = ATOMIC_USIZE_INIT;
+
+#[cfg(not(feature="nightly"))]
+fn get_root_name() -> proc_macro2::Ident {
+    let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
+    let module_name = format!("speculate_{}", count);
+    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+}
 
 /// Creates a `test` module using a friendly syntax.
 /// 
@@ -40,9 +62,8 @@ use proc_macro::TokenStream;
 ///   For example:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_hygiene)]
-///   # extern crate speculate;
-///   # use speculate::speculate;
+///   #[macro_use] extern crate speculate as other_speculate;
+///   # fn main() {}
 ///   # speculate! {
 ///   it "can add 1 and 2" {
 ///       assert_eq!(1 + 2, 3);
@@ -53,9 +74,8 @@ use proc_macro::TokenStream;
 ///   You can optionally add attributes to this block:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_hygiene)]
-///   # extern crate speculate;
-///   # use speculate::speculate;
+///   #[macro_use] extern crate speculate as other_speculate;
+///   # fn main() {}
 ///   # speculate! {
 ///   #[ignore]
 ///   test "ignore" {
@@ -79,9 +99,8 @@ use proc_macro::TokenStream;
 ///   For example:
 ///
 ///   ```rust
-///   # #![feature(use_extern_macros, proc_macro_hygiene)]
-///   # extern crate speculate;
-///   # use speculate::speculate;
+///   #[macro_use] extern crate speculate as other_speculate;
+///   # fn main() {}
 ///   # speculate! {
 ///   bench "xor 1 to 1000" |b| {
 ///       // Here, `b` is a `test::Bencher`.
@@ -95,9 +114,8 @@ use proc_macro::TokenStream;
 /// # Example
 /// 
 /// ```rust
-/// # #![feature(use_extern_macros, proc_macro_hygiene)]
-/// # extern crate speculate;
-/// # use speculate::speculate;
+///   #[macro_use] extern crate speculate as other_speculate;
+///   # fn main() {}
 /// speculate! {
 ///     const ZERO: i32 = 0;
 ///
@@ -132,11 +150,8 @@ use proc_macro::TokenStream;
 pub fn speculate(input: TokenStream) -> TokenStream {
     let input: proc_macro2::TokenStream = input.into();
     let mut root = syn::parse2::<Root>(input).unwrap();
-
-    let start_line = proc_macro::Span::call_site().start().line;
-    let module_name = format!("speculate_{}", start_line);
-
-    root.0.name = syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+    
+    root.0.name = get_root_name();
 
     let mut prefix = quote!( #[allow(non_snake_case)] );
     let modl = root.0.generate(None);
