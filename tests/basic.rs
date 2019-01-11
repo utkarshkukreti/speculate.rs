@@ -1,6 +1,12 @@
-extern crate speculate;
+#[cfg(not(feature="nightly"))]
+#[macro_use]
+extern crate speculate as other_speculate;
 
-use speculate::speculate;
+#[cfg(feature="nightly")]
+extern crate speculate as other_speculate;
+
+#[cfg(feature="nightly")]
+use other_speculate::speculate;
 
 pub fn zero() -> u32 {
     0
@@ -75,13 +81,15 @@ speculate! {
 
 // Parsing edge cases
 mod ec1 {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
 
     speculate!{}
 }
 
 mod ec2 {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
     
     speculate! {
         before {}
@@ -95,7 +103,8 @@ mod ec2 {
 }
 
 mod ec3 {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
     
     speculate! {
         it "foo" {}
@@ -103,7 +112,8 @@ mod ec3 {
 }
 
 mod ec4 {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
     
     speculate! {
         after {}
@@ -111,7 +121,8 @@ mod ec4 {
 }
 
 mod ec5 {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
     
     speculate! {
         before {}
@@ -121,7 +132,8 @@ mod ec5 {
 }
 
 mod attributes {
-    use speculate::speculate;
+    #[cfg(feature="nightly")]
+    use other_speculate::speculate;
     
     speculate! {
         #[ignore]

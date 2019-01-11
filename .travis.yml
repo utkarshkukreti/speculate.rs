@@ -1,6 +1,18 @@
 language: rust
-rust: nightly
-script:
-  - cargo build --verbose
-  - cargo test --verbose
-  - cargo bench --verbose
+
+# Benches only work on nightly. See https://github.com/rust-lang/rust/issues/29553
+matrix:
+  include:
+  - rust: stable
+    script:
+      - cargo build --verbose
+      - cargo test --verbose
+  - rust: beta
+    script:
+      - cargo build --verbose
+      - cargo test --verbose
+  - rust: nightly
+    script:
+      - cargo build --verbose
+      - cargo test --verbose
+      - cargo bench --verbose

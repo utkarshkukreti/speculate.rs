@@ -14,6 +14,11 @@ syn = { version = "^0.14", features = [ "full" ] }
 proc-macro2 = { version = "^0.4", features = [ "nightly" ] }
 
 quote = "^0.6"
+unicode-xid = "^0.1"
 
 [lib]
 proc-macro = true
+
+[features]
+default = []
+nightly = []

@@ -1,6 +1,12 @@
-extern crate speculate;
+#[cfg(not(feature="nightly"))]
+#[macro_use]
+extern crate speculate as other_speculate;
 
-use speculate::speculate;
+#[cfg(feature="nightly")]
+extern crate speculate as other_speculate;
+
+#[cfg(feature="nightly")]
+use other_speculate::speculate;
 
 speculate! {
     const ZERO: i32 = 0;
