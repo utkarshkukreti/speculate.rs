@@ -1,10 +1,10 @@
 //! `speculate` is a crate that provides a very simple macro
 //! that is used to easily and elegantly define unit tests in Rust.
-//! 
+//!
 //! Please see the documentation for the [`speculate`](./fn.speculate.html) macro
 //! for more information and examples.
 
-#![cfg_attr(feature="nightly", feature(proc_macro_span))]
+#![cfg_attr(feature = "nightly", feature(proc_macro_span))]
 
 extern crate proc_macro;
 extern crate proc_macro2;
@@ -23,10 +23,10 @@ use generator::Generate;
 
 use proc_macro::TokenStream;
 
-#[cfg(not(feature="nightly"))]
+#[cfg(not(feature = "nightly"))]
 use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
 
-#[cfg(feature="nightly")]
+#[cfg(feature = "nightly")]
 fn get_root_name() -> proc_macro2::Ident {
     let start_line = proc_macro::Span::call_site().start().line;
     let module_name = format!("speculate_{}", start_line);
@@ -34,10 +34,10 @@ fn get_root_name() -> proc_macro2::Ident {
 }
 
 // TODO: Get rid of this once proc_macro_span stabilises
-#[cfg(not(feature="nightly"))]
+#[cfg(not(feature = "nightly"))]
 static GLOBAL_SPECULATE_COUNT: AtomicUsize = ATOMIC_USIZE_INIT;
 
-#[cfg(not(feature="nightly"))]
+#[cfg(not(feature = "nightly"))]
 fn get_root_name() -> proc_macro2::Ident {
     let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
     let module_name = format!("speculate_{}", count);
@@ -45,18 +45,18 @@ fn get_root_name() -> proc_macro2::Ident {
 }
 
 /// Creates a `test` module using a friendly syntax.
-/// 
+///
 /// Inside this block, the following elements can be used:
 ///
 /// * `describe` (or its alias `context`) - to group tests in a hierarchy, for
 ///   readability. Can be arbitrarily nested.
-/// 
+///
 /// * `before` - contains setup code that's inserted before every sibling and nested
 ///   `it` and `bench` blocks.
-/// 
+///
 /// * `after` - contains teardown code that's inserted after every sibling and
 ///   nested `it` and `bench` blocks.
-/// 
+///
 /// * `it` (or its alias `test`) - contains tests.
 ///
 ///   For example:
@@ -108,11 +108,11 @@ fn get_root_name() -> proc_macro2::Ident {
 ///   }
 ///   # }
 ///   ```
-/// 
+///
 /// * Any other Rust "Item", such as `static`, `const`, `fn`, etc.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 ///   #[macro_use] extern crate speculate as other_speculate;
 ///   # fn main() {}
@@ -150,7 +150,7 @@ fn get_root_name() -> proc_macro2::Ident {
 pub fn speculate(input: TokenStream) -> TokenStream {
     let input: proc_macro2::TokenStream = input.into();
     let mut root = syn::parse2::<Root>(input).unwrap();
-    
+
     root.0.name = get_root_name();
 
     let mut prefix = quote!( #[allow(non_snake_case)] );

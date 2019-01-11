@@ -1,11 +1,11 @@
-#[cfg(not(feature="nightly"))]
+#[cfg(not(feature = "nightly"))]
 #[macro_use]
 extern crate speculate as other_speculate;
 
-#[cfg(feature="nightly")]
+#[cfg(feature = "nightly")]
 extern crate speculate as other_speculate;
 
-#[cfg(feature="nightly")]
+#[cfg(feature = "nightly")]
 use other_speculate::speculate;
 
 speculate! {

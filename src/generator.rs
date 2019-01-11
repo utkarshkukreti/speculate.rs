@@ -12,9 +12,9 @@ impl Generate for Block {
     fn generate(self, up: Option<&Describe>) -> TokenStream {
         match self {
             Block::Describe(describe) => describe.generate(up),
-            Block::It(it)             => it.generate(up),
-            Block::Bench(bench)       => bench.generate(up),
-            Block::Item(item)         => item.into_token_stream()
+            Block::It(it) => it.generate(up),
+            Block::Bench(bench) => bench.generate(up),
+            Block::Item(item) => item.into_token_stream(),
         }
     }
 }

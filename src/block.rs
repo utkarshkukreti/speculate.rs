@@ -1,7 +1,7 @@
+use proc_macro2::Span;
 use syn;
 use syn::synom::Synom;
 use unicode_xid::UnicodeXID;
-use proc_macro2::Span;
 
 pub struct Root(pub(crate) Describe);
 
@@ -35,7 +35,7 @@ pub enum Block {
     Describe(Describe),
     It(It),
     Bench(Bench),
-    Item(syn::Item)
+    Item(syn::Item),
 }
 
 impl Synom for Block {
@@ -50,11 +50,10 @@ impl Synom for Block {
     ));
 }
 
-
 enum DescribeBlock {
     Regular(Block),
     Before(syn::Block),
-    After(syn::Block)
+    After(syn::Block),
 }
 
 impl Synom for DescribeBlock {
@@ -77,8 +76,8 @@ impl Synom for DescribeBlock {
 pub struct Describe {
     pub name: syn::Ident,
     pub before: Vec<syn::Block>,
-    pub after:  Vec<syn::Block>,
-    pub blocks: Vec<Block>
+    pub after: Vec<syn::Block>,
+    pub blocks: Vec<Block>,
 }
 
 impl Synom for Describe {
@@ -96,12 +95,11 @@ impl Synom for Describe {
     ));
 }
 
-
 #[derive(Clone)]
 pub struct It {
     pub name: syn::Ident,
     pub attributes: Vec<syn::Attribute>,
-    pub block: syn::Block
+    pub block: syn::Block,
 }
 
 impl Synom for It {
@@ -121,12 +119,11 @@ impl Synom for It {
     ));
 }
 
-
 #[derive(Clone)]
 pub struct Bench {
     pub name: syn::Ident,
     pub ident: syn::Ident,
-    pub block: syn::Block
+    pub block: syn::Block,
 }
 
 impl Synom for Bench {
@@ -138,7 +135,7 @@ impl Synom for Bench {
         punct!(|)                                                   >>
         ident: syn!(syn::Ident)                                     >>
         punct!(|)                                                   >>
-        
+
         block: syn!(syn::Block)                                     >>
 
         (Bench {
