@@ -2,11 +2,6 @@
 
 > An RSpec inspired minimal testing framework for Rust.
 
-Speculate uses a syntax extension to generate test functions from the DSL at
-compile time, which unfortunately requires a nightly version of Rust. I
-recommend using [rustup](https://rustup.rs) to easily install and switch
-between stable and nightly versions of Rust.
-
 ## Installation
 
 Add `speculate` to the `dev-dependencies` section of your `Cargo.toml`:
