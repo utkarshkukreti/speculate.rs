@@ -1,7 +1,7 @@
 //! `speculate` is a crate that provides a very simple macro
 //! that is used to easily and elegantly define unit tests in Rust.
 //!
-//! Please see the documentation for the [`speculate`](./fn.speculate.html) macro
+//! Please see the documentation for the [`speculate`](./macro.speculate.html) macro
 //! for more information and examples.
 
 #![cfg_attr(feature = "nightly", feature(proc_macro_span))]
