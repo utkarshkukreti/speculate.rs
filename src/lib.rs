@@ -4,27 +4,17 @@
 //! Please see the documentation for the [`speculate`](./macro.speculate.html) macro
 //! for more information and examples.
 
-#![cfg_attr(feature = "nightly", feature(proc_macro_span))]
-
 extern crate proc_macro;
-extern crate proc_macro2;
-extern crate unicode_xid;
 
-#[macro_use]
-extern crate syn;
-#[macro_use]
-extern crate quote;
+use crate::{block::Root, generator::Generate};
+use proc_macro::TokenStream;
+use quote::quote;
 
 mod block;
 mod generator;
 
-use block::Root;
-use generator::Generate;
-
-use proc_macro::TokenStream;
-
 #[cfg(not(feature = "nightly"))]
-use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[cfg(feature = "nightly")]
 fn get_root_name() -> proc_macro2::Ident {
@@ -35,7 +25,7 @@ fn get_root_name() -> proc_macro2::Ident {
 
 // TODO: Get rid of this once proc_macro_span stabilises
 #[cfg(not(feature = "nightly"))]
-static GLOBAL_SPECULATE_COUNT: AtomicUsize = ATOMIC_USIZE_INIT;
+static GLOBAL_SPECULATE_COUNT: AtomicUsize = AtomicUsize::new(0);
 
 #[cfg(not(feature = "nightly"))]
 fn get_root_name() -> proc_macro2::Ident {

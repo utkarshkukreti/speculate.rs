@@ -1,6 +1,5 @@
 use proc_macro2::Span;
-use syn;
-use syn::synom::Synom;
+use syn::{alt, braces, call, custom_keyword, do_parse, many0, named, punct, syn, synom::Synom};
 use unicode_xid::UnicodeXID;
 
 pub struct Root(pub(crate) Describe);
