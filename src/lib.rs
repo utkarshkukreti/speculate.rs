@@ -20,7 +20,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 fn get_root_name() -> proc_macro2::Ident {
     let start_line = proc_macro::Span::call_site().start().line;
     let module_name = format!("speculate_{}", start_line);
-    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
 }
 
 // TODO: Get rid of this once proc_macro_span stabilises
@@ -31,7 +32,8 @@ static GLOBAL_SPECULATE_COUNT: AtomicUsize = AtomicUsize::new(0);
 fn get_root_name() -> proc_macro2::Ident {
     let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
     let module_name = format!("speculate_{}", count);
-    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
 }
 
 /// Creates a `test` module using a friendly syntax.
