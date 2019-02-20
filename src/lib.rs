@@ -4,44 +4,36 @@
 //! Please see the documentation for the [`speculate`](./macro.speculate.html) macro
 //! for more information and examples.
 
-#![cfg_attr(feature = "nightly", feature(proc_macro_span))]
-
 extern crate proc_macro;
-extern crate proc_macro2;
-extern crate unicode_xid;
 
-#[macro_use]
-extern crate syn;
-#[macro_use]
-extern crate quote;
+use crate::{block::Root, generator::Generate};
+use proc_macro::TokenStream;
+use quote::quote;
 
 mod block;
 mod generator;
 
-use block::Root;
-use generator::Generate;
-
-use proc_macro::TokenStream;
-
 #[cfg(not(feature = "nightly"))]
-use std::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[cfg(feature = "nightly")]
 fn get_root_name() -> proc_macro2::Ident {
     let start_line = proc_macro::Span::call_site().start().line;
     let module_name = format!("speculate_{}", start_line);
-    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
 }
 
 // TODO: Get rid of this once proc_macro_span stabilises
 #[cfg(not(feature = "nightly"))]
-static GLOBAL_SPECULATE_COUNT: AtomicUsize = ATOMIC_USIZE_INIT;
+static GLOBAL_SPECULATE_COUNT: AtomicUsize = AtomicUsize::new(0);
 
 #[cfg(not(feature = "nightly"))]
 fn get_root_name() -> proc_macro2::Ident {
     let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
     let module_name = format!("speculate_{}", count);
-    return syn::Ident::new(&module_name, proc_macro2::Span::call_site());
+
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
 }
 
 /// Creates a `test` module using a friendly syntax.

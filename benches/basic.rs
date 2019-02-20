@@ -1,5 +1,4 @@
 #![feature(proc_macro_hygiene, test)]
-extern crate speculate;
 extern crate test;
 
 use speculate::speculate;

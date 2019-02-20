@@ -1,8 +1,6 @@
+use crate::block::{Bench, Block, Describe, It};
 use proc_macro2::{Ident, TokenStream};
-
-use block::{Bench, Block, Describe, It};
-use quote::ToTokens;
-use syn;
+use quote::{quote_spanned, ToTokens};
 
 pub trait Generate {
     fn generate(self, up: Option<&Describe>) -> TokenStream;
