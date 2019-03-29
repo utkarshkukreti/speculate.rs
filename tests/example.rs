@@ -29,4 +29,18 @@ speculate! {
             assert_eq!(ONE, sub(two, ONE));
         }
     }
+
+    describe "error handling" {
+      fn maybe_badness() -> Result<(), Error> {
+          Ok(())
+      }
+
+      before {
+          maybe_badness()?;
+      }
+
+      it "could return errors" {
+          maybe_badness()?;
+      }
+    }
 }

@@ -41,6 +41,8 @@ impl Generate for Describe {
             mod #name {
                 #[allow(unused_imports)]
                 use super::*;
+                #[allow(unused_imports)]
+                use failure::Error;
 
                 #(#items)*
             }
@@ -66,13 +68,24 @@ impl Generate for It {
         let name = Ident::new(&format!("test_{}", self.name), self.name.span());
         let attributes = self.attributes;
 
-        quote_spanned!(name.span() =>
-            #[test]
-            #(#attributes)*
-            fn #name() {
-                #(#stmts)*
-            }
-        )
+        if attributes.iter().find(|attr| attr.path.segments.first().unwrap().value().ident == "should_panic").is_some() {
+            quote_spanned!(name.span() =>
+                #[test]
+                #(#attributes)*
+                fn #name() {
+                    #(#stmts)*
+                }
+            )
+        } else {
+            quote_spanned!(name.span() =>
+                #[test]
+                #(#attributes)*
+                fn #name() -> Result<(), Error> {
+                    #(#stmts)*
+                    Ok(())
+                }
+            )
+        }
     }
 }
 
