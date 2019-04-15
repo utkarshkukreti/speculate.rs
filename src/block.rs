@@ -1,5 +1,5 @@
 use proc_macro2::Span;
-use syn::{alt, braces, call, custom_keyword, do_parse, many0, named, punct, syn, synom::Synom};
+use syn::{alt, braces, call, custom_keyword, do_parse, many0, named, parens, punct, syn, synom::Synom};
 use unicode_xid::UnicodeXID;
 
 pub struct Root(pub(crate) Describe);
@@ -12,17 +12,28 @@ impl Synom for Root {
             let mut before = vec![];
             let mut after  = vec![];
             let mut blocks = vec![];
+            let mut errtype = None;
 
             for block in content {
                 match block {
                     DescribeBlock::Regular(block) => blocks.push(block),
                     DescribeBlock::Before(block)  => before.push(block),
-                    DescribeBlock::After(block)   => after.push(block)
+                    DescribeBlock::After(block)   => after.push(block),
+                    DescribeBlock::Errtype(t)     => { errtype.replace(t); }
+                }
+            }
+
+            for cand in blocks.iter_mut() {
+                if let Block::Describe(child) = cand {
+                    if child.errtype.is_none() {
+                        child.errtype = errtype.clone();
+                    }
                 }
             }
 
             Root(Describe {
                 name: syn::Ident::new("speculate", Span::call_site()),
+                errtype: errtype,
                 before, after, blocks
             })
         })
@@ -53,6 +64,7 @@ enum DescribeBlock {
     Regular(Block),
     Before(syn::Block),
     After(syn::Block),
+    Errtype(syn::TypePath),
 }
 
 impl Synom for DescribeBlock {
@@ -67,6 +79,11 @@ impl Synom for DescribeBlock {
             block: syn!(syn::Block)             >>
             (DescribeBlock::After(block))       )
         |
+        do_parse!(
+            custom_keyword!(errtype)            >>
+            errtype: parens!(syn!(syn::TypePath)) >>
+            (DescribeBlock::Errtype(errtype.1)) )
+        |
         syn!(Block) => { DescribeBlock::Regular }
     ));
 }
@@ -74,6 +91,7 @@ impl Synom for DescribeBlock {
 #[derive(Clone)]
 pub struct Describe {
     pub name: syn::Ident,
+    pub errtype: Option<syn::TypePath>,
     pub before: Vec<syn::Block>,
     pub after: Vec<syn::Block>,
     pub blocks: Vec<Block>,

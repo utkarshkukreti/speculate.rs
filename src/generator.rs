@@ -1,6 +1,7 @@
 use crate::block::{Bench, Block, Describe, It};
 use proc_macro2::{Ident, TokenStream};
-use quote::{quote_spanned, ToTokens};
+use quote::{quote, quote_spanned, ToTokens};
+use syn::spanned::Spanned;
 
 pub trait Generate {
     fn generate(self, up: Option<&Describe>) -> TokenStream;
@@ -65,12 +66,14 @@ impl Generate for It {
 
         let name = Ident::new(&format!("test_{}", self.name), self.name.span());
         let attributes = self.attributes;
+        let (ret_type, ret_val) = return_signature(up.and_then(|d| d.errtype.clone()));
 
         quote_spanned!(name.span() =>
             #[test]
             #(#attributes)*
-            fn #name() {
+            fn #name() -> #ret_type {
                 #(#stmts)*
+                #ret_val
             }
         )
     }
@@ -105,4 +108,17 @@ impl Generate for Bench {
 
 fn flatten_blocks(blocks: Vec<syn::Block>) -> impl Iterator<Item = syn::Stmt> {
     blocks.into_iter().flat_map(|block| block.stmts)
+}
+
+fn return_signature(err: Option<syn::TypePath>) -> (TokenStream, TokenStream) {
+    match err {
+        Some(errtype) => (
+            quote_spanned!(errtype.span()=> Result<(), #errtype>),
+            quote_spanned!(errtype.span()=> Ok(()))
+        ),
+        None => (
+            quote!{ () },
+            quote!{ }
+        ),
+    }
 }
