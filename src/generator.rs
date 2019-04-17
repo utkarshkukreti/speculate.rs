@@ -66,7 +66,7 @@ impl Generate for It {
 
         let name = Ident::new(&format!("test_{}", self.name), self.name.span());
         let attributes = self.attributes;
-        let (ret_type, ret_val) = return_signature(up.and_then(|d| d.errtype.clone()));
+        let (ret_type, ret_val) = return_signature(up.and_then(|d| d.errtype.clone()), &attributes);
 
         quote_spanned!(name.span() =>
             #[test]
@@ -110,13 +110,18 @@ fn flatten_blocks(blocks: Vec<syn::Block>) -> impl Iterator<Item = syn::Stmt> {
     blocks.into_iter().flat_map(|block| block.stmts)
 }
 
-fn return_signature(err: Option<syn::TypePath>) -> (TokenStream, TokenStream) {
-    match err {
-        Some(errtype) => (
+fn return_signature(err: Option<syn::TypePath>, attributes: &Vec<syn::Attribute>) -> (TokenStream, TokenStream) {
+    let should_panic = attributes.iter()
+        .find(|attr| attr.path.segments.first()
+            .filter(|segment| segment.value().ident == "should_panic")
+            .is_some());
+
+    match (err, should_panic) {
+        (Some(ref errtype), None) => (
             quote_spanned!(errtype.span()=> Result<(), #errtype>),
             quote_spanned!(errtype.span()=> Ok(()))
         ),
-        None => (
+        _ => (
             quote!{ () },
             quote!{ }
         ),

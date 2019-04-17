@@ -133,6 +133,11 @@ mod errors {
             maybe_fail_u8()?;
         }
 
+        #[should_panic]
+        it "rust does not allow Ok(()) with should_panic" {
+            panic!("Completely normal");
+        }
+
         describe "actually fails" {
             errtype(String)
 
