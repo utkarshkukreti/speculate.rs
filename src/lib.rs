@@ -85,6 +85,22 @@ fn get_root_name() -> proc_macro2::Ident {
 ///   }
 ///   # }
 ///   ```
+///   You can also declare an error type that the tests can fail with, which implicitly makes those test return `Result<(), E>`:
+///
+///   ```rust
+///   #[macro_use] extern crate speculate as other_speculate;
+///   # use std::fs;
+///   # fn main() {}
+///   # speculate! {
+///       use std::io::Error;
+///       errtype(Error)
+///
+///       it "has i/o setup" {
+///           fs::write("/some/file", "with content")?;
+///           assert_eq!(file_reader()?, "with content");
+///       }
+///   # }
+///   ```
 ///
 /// * `bench` - contains benchmarks (using [`Bencher`](https://doc.rust-lang.org/test/struct.Bencher.html)).
 ///
