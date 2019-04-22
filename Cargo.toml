@@ -4,6 +4,7 @@ version = "0.1.1"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>", "Grégoire Geis <git@gregoirege.is>"]
 description = "An RSpec inspired minimal testing framework for Rust."
 repository = "https://github.com/utkarshkukreti/speculate.rs"
+readme = "README.md"
 license = "MIT"
 edition = "2018"
 
