@@ -8,7 +8,7 @@ Add `speculate` to the `dev-dependencies` section of your `Cargo.toml`:
 
 ```toml
 [dev-dependencies]
-speculate = "0.1.0"
+speculate = "0.1"
 ```
 
 And add the following to the top of the Rust file you want to add tests for:
