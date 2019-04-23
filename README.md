@@ -65,6 +65,20 @@ Inside `speculate! { ... }`, you can have any "Item", like `static`, `const`,
   }
   ```
 
+  You can also declare an error type that the tests can fail with, which implicitly makes those test return `Result<(), E>`:
+
+  ```rust
+  use std::fs;
+  speculate! {
+      use std::io::Error;
+      errtype(Error)
+
+      it "has i/o setup" {
+          fs::write("/some/file", "with content")?;
+          assert_eq!(file_reader()?, "with_content");
+      }
+  }
+  ```
 * `bench` - contains benchmarks.
 
   For example:

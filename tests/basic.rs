@@ -119,6 +119,69 @@ mod ec5 {
     }
 }
 
+mod errors {
+    use other_speculate::speculate;
+
+    fn maybe_fail_u8() -> Result<(), u8> { Ok(()) }
+    fn maybe_fail_string() -> Result<(), String> { Ok(()) }
+    fn will_fail() -> Result<(), String> { Err("badness".to_owned()) }
+
+    speculate! {
+        errtype(u8)
+
+        it "error would be a u8" {
+            maybe_fail_u8()?;
+        }
+
+        #[should_panic]
+        it "rust does not allow Ok(()) with should_panic" {
+            panic!("Completely normal");
+        }
+
+        describe "actually fails" {
+            errtype(String)
+
+            #[ignore]
+            it "fails with a string" {
+                will_fail()?;
+            }
+
+            it "good badness" {
+                assert_eq!("badness", test_fails_with_a_string().unwrap_err());
+            }
+        }
+    }
+
+    speculate! {
+        errtype(u8)
+
+        describe "it even propagates" {
+            it "bar" {
+                maybe_fail_u8()?;
+            }
+        }
+
+        describe "and can be overridden" {
+            errtype(String)
+
+            it "foo" {
+                maybe_fail_string()?;
+            }
+        }
+    }
+
+    speculate! {
+        describe "my before blocks can use ? too" {
+            errtype(u8)
+
+            before {
+                maybe_fail_u8()?;
+            }
+            it "foo" {}
+        }
+    }
+}
+
 mod attributes {
     use other_speculate::speculate;
 
