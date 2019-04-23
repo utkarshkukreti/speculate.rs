@@ -1,4 +1,4 @@
-# speculate.rs [![Build Status](https://travis-ci.org/utkarshkukreti/speculate.rs.svg?branch=master)](https://travis-ci.org/utkarshkukreti/speculate.rs) [![crate-name at crates.io](https://img.shields.io/crates/v/speculate.svg)](https://crates.io/crates/speculate)
+# speculate.rs [![Build Status](https://travis-ci.org/utkarshkukreti/speculate.rs.svg?branch=master)](https://travis-ci.org/utkarshkukreti/speculate.rs) [![speculate at crates.io](https://img.shields.io/crates/v/speculate.svg)](https://crates.io/crates/speculate)
 
 > An RSpec inspired minimal testing framework for Rust.
 
