@@ -1,5 +1,8 @@
 use proc_macro2::Span;
-use syn::{alt, braces, call, custom_keyword, do_parse, many0, named, punct, syn, synom::Synom};
+use syn::{
+    alt, braces, brackets, call, custom_keyword, do_parse, keyword, many0, named, option, parens,
+    punct, syn, synom::Synom,
+};
 use unicode_xid::UnicodeXID;
 
 pub struct Root(pub(crate) Describe);
@@ -98,21 +101,42 @@ impl Synom for Describe {
 pub struct It {
     pub name: syn::Ident,
     pub attributes: Vec<syn::Attribute>,
+    pub variables: Option<Vec<syn::FnArg>>,
+    pub test_cases: Option<Vec<(syn::Ident, Vec<syn::Expr>)>>,
     pub block: syn::Block,
 }
 
 impl Synom for It {
     named!(parse -> Self, do_parse!(
-        attrs:   many0!(call!(syn::Attribute::parse_outer))         >>
+        attrs:     many0!(call!(syn::Attribute::parse_outer))                     >>
 
-        alt!(custom_keyword!(it) | custom_keyword!(test))           >>
+        alt!(custom_keyword!(it) | custom_keyword!(test))                         >>
 
-        name:    syn!(syn::LitStr)                                  >>
-        block:   syn!(syn::Block)                                   >>
+        name:      syn!(syn::LitStr)                                              >>
+        option!(keyword!(for))                                                    >>
+        variables: option!(parens!(many0!(do_parse!(
+            arg: syn!(syn::FnArg)                             >>
+            option!(punct!(,))                                >>
+            (arg)
+        ))))                                                                      >>
+        test_cases: option!(brackets!(many0!(do_parse!(
+            name: syn!(syn::LitStr)                           >>
+            syn!(syn::token::FatArrow)                        >>
+            expression: parens!(many0!(do_parse!(
+                expr: syn!(syn::Expr)               >>
+                option!(punct!(,))                  >>
+                (expr)
+            )))                                               >>
+            option!(punct!(,)) >>
+            (name, expression)
+        ))))                                                                      >>
+        block:     syn!(syn::Block)                                               >>
 
         (It {
             name: litstr_to_ident(&name),
             attributes: attrs,
+            variables: variables.map(|vars| vars.1.into_iter().collect()),
+            test_cases: test_cases.map(|cases| cases.1.into_iter().map(|row| (litstr_to_ident(&row.0), (row.1).1)).collect()),
             block
         })
     ));
