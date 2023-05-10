@@ -1,33 +1,38 @@
-use proc_macro2::Span;
-use syn::{alt, braces, call, custom_keyword, do_parse, many0, named, punct, syn, synom::Synom};
-use unicode_xid::UnicodeXID;
+use syn::{ custom_keyword,
+           parse::{ Parse, ParseStream },
+           Error, LitStr, Stmt };
+use unicode_ident::{is_xid_continue, is_xid_start};
 
-pub struct Root(pub(crate) Describe);
+#[cfg(not(feature = "nightly"))]
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-impl Synom for Root {
-    named!(parse -> Self, do_parse!(
-        mut content: many0!(syn!(DescribeBlock)) >>
+#[cfg(feature = "nightly")]
+fn get_root_name() -> proc_macro2::Ident {
+    let start_line = proc_macro::Span::call_site().start().line;
+    let module_name = format!("speculate_{}", start_line);
 
-        ({
-            let mut before = vec![];
-            let mut after  = vec![];
-            let mut blocks = vec![];
-
-            for block in content {
-                match block {
-                    DescribeBlock::Regular(block) => blocks.push(block),
-                    DescribeBlock::Before(block)  => before.push(block),
-                    DescribeBlock::After(block)   => after.push(block)
-                }
-            }
-
-            Root(Describe {
-                name: syn::Ident::new("speculate", Span::call_site()),
-                before, after, blocks
-            })
-        })
-    ));
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
 }
+
+// TODO: Get rid of this once proc_macro_span stabilises
+#[cfg(not(feature = "nightly"))]
+static GLOBAL_SPECULATE_COUNT: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(not(feature = "nightly"))]
+fn get_root_name() -> proc_macro2::Ident {
+    let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
+    let module_name = format!("speculate_{}", count);
+
+    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
+}
+
+custom_keyword!(describe);
+custom_keyword!(context);
+custom_keyword!(it);
+custom_keyword!(test);
+custom_keyword!(before);
+custom_keyword!(after);
+custom_keyword!(bench);
 
 #[derive(Clone)]
 pub enum Block {
@@ -37,61 +42,105 @@ pub enum Block {
     Item(syn::Item),
 }
 
-impl Synom for Block {
-    named!(parse -> Self, alt!(
-        syn!(Describe)  => { Block::Describe }
-        |
-        syn!(It)        => { Block::It }
-        |
-        syn!(Bench)     => { Block::Bench }
-        |
-        syn!(syn::Item) => { Block::Item }
-    ));
-}
+fn parse_block(input: ParseStream) -> Result<Option<Block>, Error> {
+    if input.is_empty() {
+        return Ok(None);
+    }
 
-enum DescribeBlock {
-    Regular(Block),
-    Before(syn::Block),
-    After(syn::Block),
-}
+    let forked_input = input.fork();
+    let lookahead = input.lookahead1();
 
-impl Synom for DescribeBlock {
-    named!(parse -> Self, alt!(
-        do_parse!(
-            custom_keyword!(before)             >>
-            block: syn!(syn::Block)             >>
-            (DescribeBlock::Before(block))      )
-        |
-        do_parse!(
-            custom_keyword!(after)              >>
-            block: syn!(syn::Block)             >>
-            (DescribeBlock::After(block))       )
-        |
-        syn!(Block) => { DescribeBlock::Regular }
-    ));
+    if lookahead.peek(syn::token::Pound) {
+        // If the next token is '#', parse as an `It` block.
+        let block = input.parse::<It>()?;
+        Ok(Some(Block::It(block)))
+    } else if lookahead.peek(describe) {
+        let _: describe = input.parse()?;
+        Ok(Some(input.parse::<Describe>().map(Block::Describe)?))
+    } else if lookahead.peek(context) {
+        let _: context = input.parse()?;
+        Ok(Some(input.parse::<Describe>().map(Block::Describe)?))
+    } else if lookahead.peek(it) || lookahead.peek(test) {
+        Ok(Some(input.parse::<It>().map(Block::It)?))
+    } else if lookahead.peek(bench) {
+        Ok(Some(input.parse::<Bench>().map(Block::Bench)?))
+    } else if let Ok(item) = forked_input.parse::<syn::Item>() {
+        input.parse::<syn::Item>()?;
+        Ok(Some(Block::Item(item)))
+    } else {
+        Ok(None)
+    }
 }
 
 #[derive(Clone)]
 pub struct Describe {
     pub name: syn::Ident,
-    pub before: Vec<syn::Block>,
-    pub after: Vec<syn::Block>,
+    pub before: Vec<Stmt>,
+    pub after: Vec<Stmt>,
     pub blocks: Vec<Block>,
 }
 
-impl Synom for Describe {
-    named!(parse -> Self, do_parse!(
-        alt!(custom_keyword!(describe) | custom_keyword!(context))  >>
-        name: syn!(syn::LitStr)                                     >>
-        root: braces!(syn!(Root))                                   >>
+fn parse_content(input: ParseStream) -> Result<(Vec<Stmt>, Vec<Stmt>, Vec<Block>), Error> {
+    let mut before_vec: Vec<Stmt> = Vec::new();
+    let mut after_vec: Vec<Stmt> = Vec::new();
+    let mut blocks: Vec<Block> = Vec::new();
 
-        ({
-            let mut describe = (root.1).0;
+    while !input.is_empty() {
+        if let Some(block) = parse_block(&input)? {
+            blocks.push(block);
+        } else {
+            let lookahead = input.lookahead1();
 
-            describe.name = litstr_to_ident(&name);
-            describe
-        })
-    ));
+            if lookahead.peek(before) {
+                let _: before = input.parse()?;
+                let before_block = input.parse::<syn::Block>()?;
+                for stmt in before_block.stmts {
+                    before_vec.push(stmt);
+                }
+            } else if lookahead.peek(after) {
+                let _: after = input.parse()?;
+                let after_block = input.parse::<syn::Block>()?;
+                for stmt in after_block.stmts {
+                    after_vec.push(stmt);
+                }
+            } else {
+                return Err(Error::new(input.span(), "Expected a block or 'before' or 'after'."));
+            }
+        }
+    }
+    blocks.reverse();
+    Ok((before_vec, after_vec, blocks))
+}
+
+impl Parse for Describe {
+    fn parse(input: ParseStream) -> Result<Self, Error> {
+        let lookahead = input.lookahead1();
+        let name: syn::Ident = if lookahead.peek(syn::LitStr) {
+            let name: syn::LitStr = input.parse()?;
+            litstr_to_ident(&name)
+        } else {
+            get_root_name()
+        };
+
+        let before_vec: Vec<Stmt>;
+        let after_vec: Vec<Stmt>;
+        let blocks: Vec<Block>;
+
+        if input.peek(syn::token::Brace) {
+            let content_inside_braces;
+            let _brace_token = syn::braced!(content_inside_braces in input);
+            (before_vec, after_vec, blocks) = parse_content(&content_inside_braces)?;
+        } else {
+            (before_vec, after_vec, blocks) = parse_content(input)?;
+        }
+        let describe = Describe {
+            name,
+            before: before_vec,
+            after: after_vec,
+            blocks,
+        };
+        Ok(describe)
+    }
 }
 
 #[derive(Clone)]
@@ -101,21 +150,27 @@ pub struct It {
     pub block: syn::Block,
 }
 
-impl Synom for It {
-    named!(parse -> Self, do_parse!(
-        attrs:   many0!(call!(syn::Attribute::parse_outer))         >>
+impl Parse for It {
+    fn parse(input: ParseStream) -> Result<Self, Error> {
+        let attributes: Vec<syn::Attribute> = input.call(syn::Attribute::parse_outer)?;
+        let lookahead = input.lookahead1();
+        if lookahead.peek(it) {
+            let _: it = input.parse()?;
+        } else if lookahead.peek(test) {
+            let _: test = input.parse()?;
+        } else {
+            return Err(lookahead.error());
+        }
 
-        alt!(custom_keyword!(it) | custom_keyword!(test))           >>
+        let name: LitStr = input.parse()?;
+        let block = input.parse::<syn::Block>()?;
 
-        name:    syn!(syn::LitStr)                                  >>
-        block:   syn!(syn::Block)                                   >>
-
-        (It {
+        Ok(It {
             name: litstr_to_ident(&name),
-            attributes: attrs,
-            block
+            attributes,
+            block,
         })
-    ));
+    }
 }
 
 #[derive(Clone)]
@@ -125,63 +180,47 @@ pub struct Bench {
     pub block: syn::Block,
 }
 
-impl Synom for Bench {
-    named!(parse -> Self, do_parse!(
-        alt!(custom_keyword!(bench) | custom_keyword!(test))        >>
+impl Parse for Bench {
+    fn parse(input: ParseStream) -> Result<Self, Error> {
+        let _: bench = input.parse()?;
+        let name: LitStr = input.parse()?;
+        let ident = input.parse()?;
+        let block = input.parse()?;
 
-        name:  syn!(syn::LitStr)                                    >>
-
-        punct!(|)                                                   >>
-        ident: syn!(syn::Ident)                                     >>
-        punct!(|)                                                   >>
-
-        block: syn!(syn::Block)                                     >>
-
-        (Bench {
-            name: litstr_to_ident(&name),
-            ident, block
-        })
-    ));
+        Ok(Bench { name: litstr_to_ident(&name), ident, block })
+    }
 }
 
-fn litstr_to_ident(l: &syn::LitStr) -> syn::Ident {
+fn litstr_to_ident(l: &LitStr) -> syn::Ident {
     let string = l.value();
-    let mut id = String::with_capacity(string.len());
 
     if string.is_empty() {
         return syn::Ident::new("_", l.span());
     }
 
-    let mut chars = string.chars();
-    let mut added_underscore = false;
+    let mut id: String = string
+        .chars()
+        .enumerate()
+        .flat_map(|(i, ch)| {
+            if i == 0 && !is_xid_start(ch) {
+                if is_xid_continue(ch) {
+                    vec!['_', ch]
+                } else {
+                    vec!['_']
+                }
+            } else if is_xid_continue(ch) {
+                vec![ch]
+            } else {
+                vec!['_']
+            }
+        })
+        .collect();
 
-    let first_ch = chars.next().unwrap();
-
-    if !UnicodeXID::is_xid_start(first_ch) {
-        id.push('_');
-
-        if UnicodeXID::is_xid_continue(first_ch) {
-            id.push(first_ch);
-        } else {
-            added_underscore = true;
-        }
-    } else {
-        id.push(first_ch);
+    while id.contains("__") {
+        id = id.replace("__", "_");
     }
 
-    for ch in chars {
-        if UnicodeXID::is_xid_continue(ch) {
-            id.push(ch);
-            added_underscore = false;
-        } else if !added_underscore {
-            id.push('_');
-            added_underscore = true;
-        }
-    }
-
-    if id.as_bytes()[id.len() - 1] == b'_' {
-        id.pop();
-    }
+    id = id.trim_end_matches('_').to_string();
 
     syn::Ident::new(&id, l.span())
 }
