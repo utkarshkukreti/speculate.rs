@@ -6,35 +6,11 @@
 
 extern crate proc_macro;
 
-use crate::{block::Root, generator::Generate};
+use crate::{block::Describe, generator::Generate};
 use proc_macro::TokenStream;
-use quote::quote;
 
 mod block;
 mod generator;
-
-#[cfg(not(feature = "nightly"))]
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-#[cfg(feature = "nightly")]
-fn get_root_name() -> proc_macro2::Ident {
-    let start_line = proc_macro::Span::call_site().start().line;
-    let module_name = format!("speculate_{}", start_line);
-
-    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
-}
-
-// TODO: Get rid of this once proc_macro_span stabilises
-#[cfg(not(feature = "nightly"))]
-static GLOBAL_SPECULATE_COUNT: AtomicUsize = AtomicUsize::new(0);
-
-#[cfg(not(feature = "nightly"))]
-fn get_root_name() -> proc_macro2::Ident {
-    let count = GLOBAL_SPECULATE_COUNT.fetch_add(1, Ordering::SeqCst);
-    let module_name = format!("speculate_{}", count);
-
-    syn::Ident::new(&module_name, proc_macro2::Span::call_site())
-}
 
 /// Creates a `test` module using a friendly syntax.
 ///
@@ -141,13 +117,12 @@ fn get_root_name() -> proc_macro2::Ident {
 #[proc_macro]
 pub fn speculate(input: TokenStream) -> TokenStream {
     let input: proc_macro2::TokenStream = input.into();
-    let mut root = syn::parse2::<Root>(input).unwrap();
+    // println!("Speculate input tokens: {}", input.to_string());
 
-    root.0.name = get_root_name();
+    let input_describe: Describe = syn::parse2(input.clone()).unwrap();
 
-    let mut prefix = quote!( #[allow(non_snake_case)] );
-    let modl = root.0.generate(None);
+    let output: proc_macro2::TokenStream = input_describe.generate(None);
+    // println!("Generated output tokens: {}", output.to_string());
 
-    prefix.extend(modl);
-    prefix.into()
+    output.into()
 }

@@ -1,6 +1,7 @@
 use crate::block::{Bench, Block, Describe, It};
-use proc_macro2::{Ident, TokenStream};
-use quote::{quote_spanned, ToTokens};
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
+use syn::Stmt;
 
 pub trait Generate {
     fn generate(self, up: Option<&Describe>) -> TokenStream;
@@ -20,89 +21,69 @@ impl Generate for Block {
 impl Generate for Describe {
     fn generate(mut self, up: Option<&Describe>) -> TokenStream {
         if let Some(ref up) = up {
-            self.before = up
-                .before
-                .iter()
-                .chain(self.before.iter())
-                .cloned()
-                .collect();
+            self.before = up.before.iter().chain(self.before.iter()).cloned().collect();
             self.after = self.after.iter().chain(up.after.iter()).cloned().collect();
         }
 
-        let items = self
-            .blocks
-            .iter()
-            .map(|block| block.clone().generate(Some(&self)))
-            .collect::<Vec<_>>();
-
         let name = &self.name;
+        let blocks: Vec<TokenStream> = self.blocks.iter().map(|block| block.clone().generate(Some(&self))).collect();
 
-        quote_spanned!(name.span() =>
+        quote! {
             mod #name {
                 #[allow(unused_imports)]
                 use super::*;
 
-                #(#items)*
+                #(#blocks)*
             }
-        )
+        }
     }
 }
 
 impl Generate for It {
     fn generate(self, up: Option<&Describe>) -> TokenStream {
-        let blocks = if let Some(ref up) = up {
-            up.before
-                .iter()
-                .chain(Some(self.block).iter())
-                .chain(up.after.iter())
-                .cloned()
-                .collect()
+        let stmts: Vec<Stmt> = if let Some(ref up) = up {
+            let mut combined = up.before.clone();
+            combined.extend(self.block.stmts.iter().cloned());
+            combined.extend(up.after.iter().cloned());
+            combined
         } else {
-            vec![self.block]
+            self.block.stmts.clone()
         };
+        let stmts_token: Vec<TokenStream> = stmts.into_iter().map(|stmt| quote! { #stmt }).collect();
 
-        let stmts = flatten_blocks(blocks);
+        let name = &self.name;
+        let attributes = &self.attributes;
 
-        let name = Ident::new(&format!("test_{}", self.name), self.name.span());
-        let attributes = self.attributes;
-
-        quote_spanned!(name.span() =>
-            #[test]
+        quote! {
             #(#attributes)*
+            #[test]
             fn #name() {
-                #(#stmts)*
+                #(#stmts_token)*
             }
-        )
+        }
     }
 }
 
 impl Generate for Bench {
     fn generate(self, up: Option<&Describe>) -> TokenStream {
-        let blocks = if let Some(ref up) = up {
-            up.before
-                .iter()
-                .chain(Some(self.block).iter())
-                .chain(up.after.iter())
-                .cloned()
-                .collect()
+        let stmts: Vec<Stmt> = if let Some(ref up) = up {
+            let mut combined = up.before.clone();
+            combined.extend(self.block.stmts.iter().cloned());
+            combined.extend(up.after.iter().cloned());
+            combined
         } else {
-            vec![self.block]
+            self.block.stmts.clone()
         };
+        let stmts_token: Vec<TokenStream> = stmts.into_iter().map(|stmt| quote! { #stmt }).collect();
 
-        let stmts = flatten_blocks(blocks);
+        let name = &self.name;
+        let ident = &self.ident;
 
-        let name = Ident::new(&format!("bench_{}", self.name), self.name.span());
-        let ident = self.ident;
-
-        quote_spanned!(name.span() =>
+        quote! {
             #[bench]
             fn #name(#ident: &mut ::test::Bencher) {
-                #(#stmts)*
+                #(#stmts_token)*
             }
-        )
+        }
     }
-}
-
-fn flatten_blocks(blocks: Vec<syn::Block>) -> impl Iterator<Item = syn::Stmt> {
-    blocks.into_iter().flat_map(|block| block.stmts)
 }
